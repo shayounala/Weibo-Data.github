@@ -1,24 +1,19 @@
 package dataprocessing;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Set;
+
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
-import com.mongodb.RawDBObject;
+import com.mongodb.QueryOperators;
 
 public class TransferDatatoMongo {
 	
@@ -55,10 +50,10 @@ public class TransferDatatoMongo {
 			DBCollection NextIDsCollection = db.getCollection("NextIDs");
 			//System.exit(0);
 			BasicDBObject NextIDsObject = new BasicDBObject();
-			NextIDsObject.put("Next Number of ID for Mining followers ID",nextID);
-			NextIDsObject.put("Next Number of ID for Mining friends ID",0);
-			NextIDsObject.put("Next Number of ID for Mining Tweets",0);
-			NextIDsObject.put("Next Number of Tweet ID for Mining Reposts",0);
+			NextIDsObject.put("Next ID for Mining followers ID",nextID);
+			NextIDsObject.put("Next ID for Mining friends ID",-1);
+			NextIDsObject.put("Next ID for Mining Tweets",-1);
+			NextIDsObject.put("Next Tweet ID for Mining Reposts",-1);
 			NextIDsCollection.insert(NextIDsObject);
 			//System.exit(0);
 			
@@ -94,24 +89,6 @@ public class TransferDatatoMongo {
 			 * Test the validity of the old data
 			 */
 			System.out.println(UniqueUsersIDList.size());
-			
-			/*
-			 * Output the Unique User IDs into UniqueUserIDs.txt
-			 */
-			DBCollection UniqueUserIDsCollection = db.getCollection("UniqueUserIDs");
-
-			for(int i=0;i<UniqueUsersIDList.size();i++){
-				UniqueUserIDsCollection.insert(new BasicDBObject("Unique User ID", UniqueUsersIDList.get(i).intValue()));
-				//UniqueUserIDsCollection.insert(new BasicDBObject().append("Unique User ID", UniqueUsersIDList.get(i).intValue()));
-			}
-			//System.exit(0);
-			
-			/*
-			 * Test the output of UniqueUserIDs.txt
-			 */
-			System.out.println(UniqueUserIDsCollection.find().count());
-			//System.exit(0);
-
 			
 			/*
 			 * Read the Users' Followers ID
@@ -174,26 +151,61 @@ public class TransferDatatoMongo {
 			}
 			
 			
+			
+			
+			/*
+			 * Output the Unique User IDs into UniqueUserIDs.txt
+			 */
+			
+			/*BasicDBObject query = new BasicDBObject();
+			query.put("Next ID for Mining followers ID", new BasicDBObject(QueryOperators.EXISTS, true));
+			System.out.println(NextIDsCollection.find(query).toArray().get(0).get("Next ID for Mining followers ID"));
+			int nextid = UniqueUsersIDList.get(NextIDsCollection.find(query).toArray().get(0).get("Next ID for Mining followers ID").hashCode());
+			NextIDsCollection.update(query, new BasicDBObject("Next ID for Mining followers ID",nextid));
+			System.out.println(NextIDsCollection.find(query).toArray().get(0).get("Next ID for Mining followers ID"));
+			System.exit(0)*/;
+			
+			
+			
+			DBCollection UniqueUserIDsCollection = db.getCollection("UniqueUserIDs");
+
+			for(int i=0;i<UniqueUsersIDList.size();i++){
+				UniqueUserIDsCollection.insert(new BasicDBObject("Number",i).append("ID", UniqueUsersIDList.get(i).intValue()));
+				//UniqueUserIDsCollection.insert(new BasicDBObject().append("Unique User ID", UniqueUsersIDList.get(i).intValue()));
+			}
+			//System.exit(0);
+			
+			/*
+			 * Test the output of UniqueUserIDs.txt
+			 */
+			System.out.println(UniqueUserIDsCollection.find().count());
+			//System.exit(0);
+			
+			
 			/*
 			 * Output the Users'followers ID
 			 */
-			DBCollection UserFollowersIDsCollection = db.getCollection("UserFollowersIDs");
 
+			DBCollection UserInformationCollection = db.getCollection("UserInformation");
 			ArrayList<Integer> tempfollowersID = new ArrayList<Integer>();
+			int number =0;
 			for(int i=0;i<followersID.size();i++){
 				int id = followersID.get(i);
 				if(id!=-1){
 					tempfollowersID.add(id);
 				}
 				if(id == -1){
-					BasicDBObject userfolloweridobject = new BasicDBObject();
-					userfolloweridobject.put("User ID", tempfollowersID.get(0));
+					//BasicDBObject query = new BasicDBObject("Number",number);
+					BasicDBObject userfollowerobject = new BasicDBObject();//(BasicDBObject)UniqueUserIDsCollection.findOne(query);
 					BasicDBObject userfolloweridsobject = new BasicDBObject();
+					userfollowerobject.put("User ID", tempfollowersID.get(0));
 					for(int j=1;j<tempfollowersID.size();j++){
 						userfolloweridsobject.put("Follower ID", tempfollowersID.get(j));
 					}
-					userfolloweridobject.put("Followers ID", userfolloweridsobject);
-					UserFollowersIDsCollection.insert(userfolloweridobject);
+					userfollowerobject.put("Followers ID", userfolloweridsobject);
+					UserInformationCollection.insert(userfollowerobject);
+					number++;
+					System.out.println(number);
 					tempfollowersID.clear();
 				}
 			}
@@ -201,7 +213,7 @@ public class TransferDatatoMongo {
 			/*
 			 * Test the output of Users'Follwers ID
 			 */
-			System.out.println(UserFollowersIDsCollection.find().count());
+			System.out.println(UserInformationCollection.find(new BasicDBObject("User ID",new BasicDBObject(QueryOperators.EXISTS,true))).count());
 
 			
 		} catch (UnknownHostException e) {

@@ -11,7 +11,6 @@ import weibo4j.WeiboException;
 public class Mining {
 
 	public static final int WeiboNumberMax = 15;
-	private static int FileNumber_FollowersID;
 	private static int NextID;
 	private static ArrayList<Integer> UniqueUserIDList;
 	private static final int RateLimitMax = 1000;
