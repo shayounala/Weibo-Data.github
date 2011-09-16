@@ -203,6 +203,7 @@ public class TransferDatatoMongo {
 			ArrayList<Integer> tempfollowersID = new ArrayList<Integer>();
 			ArrayList<Integer> UserID = new ArrayList<Integer>();
 			int number =0;
+			int totalnumber = 0;
 			for(int i=0;i<followersID.size();i++){
 				int id = followersID.get(i);
 				if(id!=-1){
@@ -217,6 +218,7 @@ public class TransferDatatoMongo {
 					userfollowerobject.put("Followers ID", tempfollowersID);
 					UserInformationCollection.insert(userfollowerobject);
 					number++;
+					totalnumber = totalnumber+tempfollowersID.size();
 					System.out.println(number);
 					tempfollowersID.clear();
 				}else if(id == -1){
@@ -227,6 +229,7 @@ public class TransferDatatoMongo {
 			/*
 			 * Test the output of Users'Follwers ID
 			 */
+			System.out.println("totalnumber"+totalnumber);
 			System.out.println(UserInformationCollection.find(new BasicDBObject("ID",new BasicDBObject(QueryOperators.EXISTS,true))).count());
 
 			
