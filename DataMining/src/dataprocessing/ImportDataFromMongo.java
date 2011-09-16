@@ -10,8 +10,11 @@ import com.mongodb.QueryOperators;
 public class ImportDataFromMongo {
 
 	@SuppressWarnings("unchecked")
-	public ArrayList<Integer> importUniqueUserIDs(DB db, String CollectionName) {
+	public ArrayList<Integer> importUniqueUserIDs(Processing processing) {
+
 		ArrayList<Integer> UniqueUserIDsList = new ArrayList<Integer>();
+		DB db = processing.getDB();
+		String CollectionName = processing.getUniqueUserIDs();
 
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
 		UniqueUserIDsList = (ArrayList<Integer>) UniqueUserIDsCollection
@@ -22,8 +25,11 @@ public class ImportDataFromMongo {
 	}
 
 	@SuppressWarnings("unchecked")
-	public int importNextUniqueIDFollowers(DB db, String CollectionName) {
+	public int importNextUniqueIDFollowers(Processing processing) {
+
 		int nextuniqueid = 0;
+		DB db = processing.getDB();
+		String CollectionName = processing.getNextIDs();
 
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
 		ArrayList<Integer> NextUniqueIDsList = (ArrayList<Integer>) UniqueUserIDsCollection
@@ -33,7 +39,8 @@ public class ImportDataFromMongo {
 								new BasicDBObject(QueryOperators.EXISTS, true))));
 
 		if (NextUniqueIDsList.size() != 1) {
-			System.out.println("The format of imported Next ID for Mining followers IDis wrong");
+			System.out
+					.println("The format of imported Next ID for Mining followers IDis wrong");
 		} else {
 			nextuniqueid = NextUniqueIDsList.get(0);
 		}
@@ -42,8 +49,11 @@ public class ImportDataFromMongo {
 	}
 
 	@SuppressWarnings("unchecked")
-	public int importNextUniqueIDFriends(DB db, String CollectionName) {
+	public int importNextUniqueIDFriends(Processing processing) {
+
 		int nextuniqueid = 0;
+		DB db = processing.getDB();
+		String CollectionName = processing.getNextIDs();
 
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
 		ArrayList<Integer> NextUniqueIDsList = (ArrayList<Integer>) UniqueUserIDsCollection
@@ -52,7 +62,8 @@ public class ImportDataFromMongo {
 								QueryOperators.EXISTS, true))));
 
 		if (NextUniqueIDsList.size() != 1) {
-			System.out.println("The format of imported Next ID for Mining friends ID is wrong");
+			System.out
+					.println("The format of imported Next ID for Mining friends ID is wrong");
 		} else {
 			nextuniqueid = NextUniqueIDsList.get(0);
 		}
@@ -61,18 +72,21 @@ public class ImportDataFromMongo {
 	}
 
 	@SuppressWarnings("unchecked")
-	public int importNextUniqueIDTweet(DB db, String CollectionName) {
+	public int importNextUniqueIDTweet(Processing processing) {
+
 		int nextuniqueid = 0;
+		DB db = processing.getDB();
+		String CollectionName = processing.getNextIDs();
 
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
 		ArrayList<Integer> NextUniqueIDsList = (ArrayList<Integer>) UniqueUserIDsCollection
-				.distinct(
-						"Next ID for Mining Tweets",
-						(new BasicDBObject("Next ID for Mining Tweets",
-								new BasicDBObject(QueryOperators.EXISTS, true))));
+				.distinct("Next ID for Mining Tweets", (new BasicDBObject(
+						"Next ID for Mining Tweets", new BasicDBObject(
+								QueryOperators.EXISTS, true))));
 
 		if (NextUniqueIDsList.size() != 1) {
-			System.out.println("The format of imported Next ID for Mining Tweets is wrong");
+			System.out
+					.println("The format of imported Next ID for Mining Tweets is wrong");
 		} else {
 			nextuniqueid = NextUniqueIDsList.get(0);
 		}
@@ -81,8 +95,11 @@ public class ImportDataFromMongo {
 	}
 
 	@SuppressWarnings("unchecked")
-	public int importNextTweetIDRepost(DB db, String CollectionName) {
+	public int importNextTweetIDRepost(Processing processing) {
+
 		int nextuniqueid = 0;
+		DB db = processing.getDB();
+		String CollectionName = processing.getNextIDs();
 
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
 		ArrayList<Integer> NextUniqueIDsList = (ArrayList<Integer>) UniqueUserIDsCollection
@@ -92,7 +109,8 @@ public class ImportDataFromMongo {
 								new BasicDBObject(QueryOperators.EXISTS, true))));
 
 		if (NextUniqueIDsList.size() != 1) {
-			System.out.println("The format of imported Next Tweet ID for Mining Reposts is wrong");
+			System.out
+					.println("The format of imported Next Tweet ID for Mining Reposts is wrong");
 		} else {
 			nextuniqueid = NextUniqueIDsList.get(0);
 		}

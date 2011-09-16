@@ -9,23 +9,41 @@ import com.mongodb.QueryOperators;
 
 public class ExportDataToMongo {
 
-	@SuppressWarnings("unchecked")
-	public ArrayList<Integer> ExportUniqueUserIDs(DB db, String CollectionName) {
-		ArrayList<Integer> UniqueUserIDsList = new ArrayList<Integer>();
+	@SuppressWarnings({ "unchecked" })
+	public void ExportUniqueUserIDs(Processing processing,
+			ArrayList<Integer> UniqueUserIDsList) {
 
+		DB db = processing.getDB();
+		String CollectionName = processing.getUniqueUserIDs();
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
-		UniqueUserIDsList = (ArrayList<Integer>) UniqueUserIDsCollection
-				.distinct("ID", (new BasicDBObject("ID", new BasicDBObject(
-						QueryOperators.EXISTS, true))));
 
-		return UniqueUserIDsList;
+		int number = UniqueUserIDsCollection.find().count();
+		ArrayList<Integer> lastid = (ArrayList<Integer>) UniqueUserIDsCollection
+				.distinct("ID", new BasicDBObject("Number", number - 1));
+		if (lastid.size() != 1) {
+			System.out
+					.println("There exists more than one DBObject for Number = "
+							+ (number - 1) + " in " + CollectionName);
+		} else if (lastid.get(0) != UniqueUserIDsList.get(number - 1)) {
+			System.out
+					.println("New exported unique user data doesn't equals the old data");
+		}
+
+		for (int i = number; i < UniqueUserIDsList.size(); i++) {
+			UniqueUserIDsCollection.insert(new BasicDBObject("Number", i)
+					.append("ID", UniqueUserIDsList.get(i).intValue()));
+		}
+
 	}
 
 	@SuppressWarnings("unchecked")
-	public void ExportNextUniqueIDFollowers(DB db, String CollectionName,
+	public void ExportNextUniqueIDFollowers(Processing processing,
 			int nextuniqueid) {
 
+		DB db = processing.getDB();
+		String CollectionName = processing.getNextIDs();
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
+
 		ArrayList<Integer> NextUniqueIDsList = (ArrayList<Integer>) UniqueUserIDsCollection
 				.distinct(
 						"Next ID for Mining followers ID",
@@ -45,10 +63,13 @@ public class ExportDataToMongo {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void ExportNextUniqueIDFriends(DB db, String CollectionName,
+	public void ExportNextUniqueIDFriends(Processing processing,
 			int nextuniqueid) {
 
+		DB db = processing.getDB();
+		String CollectionName = processing.getNextIDs();
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
+
 		ArrayList<Integer> NextUniqueIDsList = (ArrayList<Integer>) UniqueUserIDsCollection
 				.distinct("Next ID for Mining friends ID", (new BasicDBObject(
 						"Next ID for Mining friends ID", new BasicDBObject(
@@ -67,10 +88,12 @@ public class ExportDataToMongo {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void ExportNextUniqueIDTweet(DB db, String CollectionName,
-			int nextuniqueid) {
+	public void ExportNextUniqueIDTweet(Processing processing, int nextuniqueid) {
 
+		DB db = processing.getDB();
+		String CollectionName = processing.getNextIDs();
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
+
 		ArrayList<Integer> NextUniqueIDsList = (ArrayList<Integer>) UniqueUserIDsCollection
 				.distinct("Next ID for Mining Tweets", (new BasicDBObject(
 						"Next ID for Mining Tweets", new BasicDBObject(
@@ -89,10 +112,12 @@ public class ExportDataToMongo {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void ExportNextTweetIDRepost(DB db, String CollectionName,
-			int nextuniqueid) {
+	public void ExportNextTweetIDRepost(Processing processing, int nextuniqueid) {
 
+		DB db = processing.getDB();
+		String CollectionName = processing.getNextIDs();
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
+
 		ArrayList<Integer> NextUniqueIDsList = (ArrayList<Integer>) UniqueUserIDsCollection
 				.distinct(
 						"Next Tweet ID for Mining Reposts",
@@ -111,14 +136,20 @@ public class ExportDataToMongo {
 
 	}
 
-	public void ExportUserFollowersID(DB db, String CollectionName, int userid,
+	public void ExportUserFollowersID(Processing processing, int userid,
 			ArrayList<Integer> followers) {
 
+		DB db = processing.getDB();
+		String CollectionName = processing.getUserinformation();
 		DBCollection UserInformationCollection = db
 				.getCollection(CollectionName);
+
 		BasicDBObject query = new BasicDBObject("ID", userid);
 		BasicDBObject userinformationobject = (BasicDBObject) UserInformationCollection
 				.findOne(query);
+		if (userinformationobject == null) {
+			userinformationobject = new BasicDBObject("ID", userid);
+		}
 		if (userinformationobject.getBoolean("Followers ID")) {
 			return;
 		}
@@ -127,11 +158,14 @@ public class ExportDataToMongo {
 		UserInformationCollection.update(query, userinformationobject);
 	}
 
-	public void ExportUserFriendsID(DB db, String CollectionName, int userid,
+	public void ExportUserFriendsID(Processing processing, int userid,
 			ArrayList<Integer> friends) {
 
+		DB db = processing.getDB();
+		String CollectionName = processing.getUserinformation();
 		DBCollection UserInformationCollection = db
 				.getCollection(CollectionName);
+
 		BasicDBObject query = new BasicDBObject("ID", userid);
 		BasicDBObject userinformationobject = (BasicDBObject) UserInformationCollection
 				.findOne(query);
@@ -143,11 +177,14 @@ public class ExportDataToMongo {
 		UserInformationCollection.update(query, userinformationobject);
 	}
 
-	public void ExportUserTweetsID(DB db, String CollectionName, int userid,
+	public void ExportUserTweetsID(Processing processing, int userid,
 			ArrayList<Integer> TweetsID) {
 
+		DB db = processing.getDB();
+		String CollectionName = processing.getUserinformation();
 		DBCollection UserInformationCollection = db
 				.getCollection(CollectionName);
+
 		BasicDBObject query = new BasicDBObject("ID", userid);
 		BasicDBObject userinformationobject = (BasicDBObject) UserInformationCollection
 				.findOne(query);

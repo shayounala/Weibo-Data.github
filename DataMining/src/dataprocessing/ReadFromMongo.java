@@ -1,12 +1,10 @@
 package dataprocessing;
 
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
@@ -22,24 +20,17 @@ public class ReadFromMongo {
 	public static void main(String[] args) throws UnknownHostException, MongoException {
 		// TODO Auto-generated method stub
 		Mongo mongo = new Mongo("localhost",27017);
-		mongo.dropDatabase("mydb");
-		DB db = mongo.getDB("mydb");
+		//mongo.dropDatabase("mydb");
+		DB db = mongo.getDB("testdb");
 		
-		DBCollection dbcollection = db.getCollection("testcollection");
-		for(int i=0;i<100;i++){
-			BasicDBObject id = new BasicDBObject("ID",i);
-			int [] idnumbers = new int[100];
-			for(int j=0;j<100;j++){
-				idnumbers[j] = i+j;
-			}
-			id.put("idnumber", idnumbers);
-			dbcollection.insert(id);
-		}
+		DBCollection dbcollection = db.getCollection("UserInformation");
+		System.out.println(dbcollection.find(new BasicDBObject("ID",new BasicDBObject(QueryOperators.EXISTS,true))).count());
 		
-		DBCursor dbcursor = dbcollection.find(new BasicDBObject("idnumber1",new BasicDBObject(QueryOperators.EXISTS,true)));
-		System.out.println(dbcollection.distinct("idnumber",new BasicDBObject("ID",55)));
-		
-		
+		int nextid = dbcollection.find(new BasicDBObject("ID",new BasicDBObject(QueryOperators.EXISTS,true))).count();
+		DBObject object = db.getCollection("NextIDs").findOne(new BasicDBObject("Next ID for Mining followers ID",new BasicDBObject(QueryOperators.EXISTS,true)));
+		object.put("Next ID for Mining followers ID", nextid);
+		db.getCollection("NextIDs").update(new BasicDBObject("Next ID for Mining followers ID",new BasicDBObject(QueryOperators.EXISTS,true)), object);
+		System.out.println(db.getCollection("NextIDs").findOne());
 	}
 
 }

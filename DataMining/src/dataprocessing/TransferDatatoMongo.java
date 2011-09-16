@@ -30,9 +30,9 @@ public class TransferDatatoMongo {
 		
 		try {
 			Mongo mongo = new Mongo("localhost",27017);
-			mongo.dropDatabase("mydb");
+			mongo.dropDatabase("testdb");
 			//System.exit(0);
-			DB db = mongo.getDB("mydb");	
+			DB db = mongo.getDB("testdb");	
 			//System.exit(0);
 
 			
@@ -81,7 +81,10 @@ public class TransferDatatoMongo {
 			
 			for(int i=0;i<idlength;i++){
 				int id = usefulResultsread.readInt();
-				UniqueUsersIDList.add(id);
+				//System.out.println(i);
+				if(!UniqueUsersIDList.contains(id)){
+					UniqueUsersIDList.add(id);
+				}
 			}
 			usefulResultsread.close();
 			
@@ -89,7 +92,15 @@ public class TransferDatatoMongo {
 			 * Test the validity of the old data
 			 */
 			System.out.println(UniqueUsersIDList.size());
-			
+			for(int i=0;i<UniqueUsersIDList.size();i++){
+				for(int j=i+1;j<UniqueUsersIDList.size();j++){
+					if(UniqueUsersIDList.get(i)==UniqueUsersIDList.get(j)){
+						System.out.println("False ID: Same ID in the getFollowersIDs");
+						System.exit(0);
+					}
+				}
+			}
+			System.out.println(UniqueUsersIDList.size());
 			/*
 			 * Read the Users' Followers ID
 			 */
@@ -134,12 +145,14 @@ public class TransferDatatoMongo {
 			/*
 			 * Test the input of Users'Follwers ID
 			 */
-			ArrayList<Integer> UsersIDList = new ArrayList<Integer>();
+			/*ArrayList<Integer> UsersIDList = new ArrayList<Integer>();
 			UsersIDList.add(followersID.get(0));
 			for(int i=0;i<followersID.size();i++){
 				int id = followersID.get(i);
 				if(id == -1 && (i+1)<followersID.size()){
-					UsersIDList.add(followersID.get(i+1));
+					if(!UsersIDList.contains(followersID.get(i+1))){
+						UsersIDList.add(followersID.get(i+1));
+					}
 				}
 			}
 			System.out.println(UsersIDList.size());
@@ -148,7 +161,7 @@ public class TransferDatatoMongo {
 					//System.out.println("Reading the Users'followers is wrong");
 					System.out.println("UniqueUserID: "+UniqueUsersIDList.get(i)+"UserID: "+UsersIDList.get(i)+"Difference: "+(UniqueUsersIDList.get(i)-UniqueUsersIDList.get(i)));
 				}
-			}
+			}*/
 			
 			
 			
@@ -188,24 +201,25 @@ public class TransferDatatoMongo {
 
 			DBCollection UserInformationCollection = db.getCollection("UserInformation");
 			ArrayList<Integer> tempfollowersID = new ArrayList<Integer>();
+			ArrayList<Integer> UserID = new ArrayList<Integer>();
 			int number =0;
 			for(int i=0;i<followersID.size();i++){
 				int id = followersID.get(i);
 				if(id!=-1){
 					tempfollowersID.add(id);
 				}
-				if(id == -1){
+				if(id == -1 && !UserID.contains(tempfollowersID.get(0))){
+					UserID.add(tempfollowersID.get(0));
 					//BasicDBObject query = new BasicDBObject("Number",number);
 					BasicDBObject userfollowerobject = new BasicDBObject();//(BasicDBObject)UniqueUserIDsCollection.findOne(query);
-					BasicDBObject userfolloweridsobject = new BasicDBObject();
-					userfollowerobject.put("User ID", tempfollowersID.get(0));
-					for(int j=1;j<tempfollowersID.size();j++){
-						userfolloweridsobject.put("Follower ID", tempfollowersID.get(j));
-					}
-					userfollowerobject.put("Followers ID", userfolloweridsobject);
+					userfollowerobject.put("ID", tempfollowersID.get(0));
+					tempfollowersID.remove(0);
+					userfollowerobject.put("Followers ID", tempfollowersID);
 					UserInformationCollection.insert(userfollowerobject);
 					number++;
 					System.out.println(number);
+					tempfollowersID.clear();
+				}else if(id == -1){
 					tempfollowersID.clear();
 				}
 			}
@@ -213,7 +227,7 @@ public class TransferDatatoMongo {
 			/*
 			 * Test the output of Users'Follwers ID
 			 */
-			System.out.println(UserInformationCollection.find(new BasicDBObject("User ID",new BasicDBObject(QueryOperators.EXISTS,true))).count());
+			System.out.println(UserInformationCollection.find(new BasicDBObject("ID",new BasicDBObject(QueryOperators.EXISTS,true))).count());
 
 			
 		} catch (UnknownHostException e) {

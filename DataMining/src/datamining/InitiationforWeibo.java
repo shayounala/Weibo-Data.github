@@ -54,6 +54,7 @@ public class InitiationforWeibo {
 	}
 	
 	public  void initiations(){
+		
 		for(int i=0;i<WeiboNumberMax;i++){
 			try {
 				WeiboList.add(new Weibo());
