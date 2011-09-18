@@ -8,10 +8,11 @@ import com.mongodb.MongoException;
 
 public class Processing {
 
-	public Processing(String dbname, String NextIDs, String UniqueUserIDs,
+	public Processing(String dbname, String AccountInformation, String NextIDs, String UniqueUserIDs,
 			String UserInformation) throws UnknownHostException, MongoException {
 		super();
 		this.dbname = dbname;
+		this.AccountInformation = AccountInformation;
 		this.NextIDs = NextIDs;
 		this.UniqueUserIDs = UniqueUserIDs;
 		this.UserInformation = UserInformation;
@@ -20,6 +21,7 @@ public class Processing {
 	}
 
 	private String dbname;
+	private String AccountInformation;
 	private String NextIDs;
 	private String UniqueUserIDs;
 	private String UserInformation;
@@ -51,6 +53,10 @@ public class Processing {
 	public String getNextIDs() {
 		// TODO Auto-generated method stub
 		return NextIDs;
+	}
+	
+	public String getAccountInformation() {
+		return AccountInformation;
 	}
 
 }

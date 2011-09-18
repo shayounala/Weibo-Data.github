@@ -6,6 +6,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import dataprocessing.ExportDataToMongo;
+import dataprocessing.ImportDataFromMongo;
+import dataprocessing.Processing;
+
+import weibo4j.User;
 import weibo4j.Weibo;
 import weibo4j.WeiboException;
 import weibo4j.http.AccessToken;
@@ -19,12 +24,18 @@ public class InitiationforWeibo {
 		WeiboNumberMax = weiboNumberMax;
 		weiboAccount = new String [WeiboNumberMax];
 		weiboPassword = new String [WeiboNumberMax];
+		weiboToken = new String [WeiboNumberMax];
+		weiboTokenSecret = new String [WeiboNumberMax];
 		WeiboList = new ArrayList<Weibo>();
+		System.setProperty("weibo4j.oauth.consumerKey", Weibo.CONSUMER_KEY);
+    	System.setProperty("weibo4j.oauth.consumerSecret", Weibo.CONSUMER_SECRET);
 	}
 
 	public  int WeiboNumberMax;
-	private  String [] weiboAccount;//Tokens of weibo account
-	private  String [] weiboPassword;//Tokensecrets of weibo account
+	private  String [] weiboAccount;//weibo account
+	private  String [] weiboPassword;//weibo password
+	private  String [] weiboToken;//Tokens of weibo account
+	private  String [] weiboTokenSecret;//Tokensecrets of weibo account
 	private  ArrayList<Weibo> WeiboList;
 	
 	
@@ -53,8 +64,8 @@ public class InitiationforWeibo {
         return weibo;
 	}
 	
-	public  void initiations(){
-		
+	public void initiations(Processing processing){
+		//processing.getDB().getCollection(processing.getAccountInformation()).drop();
 		for(int i=0;i<WeiboNumberMax;i++){
 			try {
 				WeiboList.add(new Weibo());
@@ -84,8 +95,14 @@ public class InitiationforWeibo {
 						}
 					}
 				}
-				weiboAccount[i] = accessToken.getToken();
-				weiboPassword[i] = accessToken.getTokenSecret();
+				weiboAccount[i] = "datamining"+String.valueOf(i);
+				weiboToken[i] =	accessToken.getToken();
+				weiboPassword[i] = "datamining"+String.valueOf(i);
+				weiboTokenSecret[i]	= accessToken.getTokenSecret();
+				
+				System.out.println(WeiboList.get(i).showUser("David_Scoot").toString());
+				ExportDataToMongo export = new ExportDataToMongo();
+				export.ExportAccountInformation(processing,weiboAccount[i],weiboPassword[i],weiboToken[i],weiboTokenSecret[i]);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -95,6 +112,44 @@ public class InitiationforWeibo {
 		}
 		
 		
+	}
+
+	public void afterinitiations(Processing processing) {
+		// TODO Auto-generated method stub
+		ImportDataFromMongo imports = new ImportDataFromMongo();
+		ArrayList<String> AccountInfo = imports.importAccountInfomation(processing);
+		
+		for(int i=0;i<AccountInfo.size();i++){
+			
+			System.out.println(AccountInfo.get(i));
+			
+			switch(i/this.WeiboNumberMax){
+			case 0:
+				weiboAccount[i] = AccountInfo.get(i);
+			case 1:
+				weiboPassword[i%this.WeiboNumberMax] = AccountInfo.get(i);
+			case 2:
+				weiboToken[i%this.WeiboNumberMax] = AccountInfo.get(i);
+			case 3:
+				weiboTokenSecret[i%this.WeiboNumberMax] = AccountInfo.get(i);
+			}
+		}
+		
+		for(int i=0;i<this.WeiboNumberMax;i++){
+			Weibo weibo = new Weibo();
+	        
+	        weibo.setToken(weiboToken[i], weiboTokenSecret[i]);
+	        System.out.println(weiboAccount[i]);
+	        try {
+				User user = weibo.verifyCredentials();
+				System.out.println(user.toString());
+			} catch (WeiboException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        
+	        WeiboList.add(weibo);
+		}
 	}
 	
 }

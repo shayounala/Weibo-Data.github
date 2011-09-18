@@ -13,7 +13,7 @@ import weibo4j.WeiboException;
 
 public class Mining {
 
-	public static final int WeiboNumberMax = 15;
+	public static final int WeiboNumberMax = 14;
 	private static int NextID;
 	private static ArrayList<Integer> UniqueUserIDList;
 	private static final int RateLimitMax = 1000;
@@ -24,11 +24,10 @@ public class Mining {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		test();
-		InitiationforWeibo initiation = new InitiationforWeibo(WeiboNumberMax);
-		initiation.initiations();
+		//test();
+		
 		try {
-			processing = new Processing("mydb", "NextIDs", "UniqueUserIDs",
+			processing = new Processing("mydb","AccountInformaiton", "NextIDs", "UniqueUserIDs",
 					"UserInformation");
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -37,6 +36,11 @@ public class Mining {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		InitiationforWeibo initiation = new InitiationforWeibo(WeiboNumberMax);
+		initiation.afterinitiations(processing);
+		System.exit(0);
+		
 		socialnetwork_Initiation(initiation);
 
 	}

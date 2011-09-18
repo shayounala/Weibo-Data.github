@@ -40,7 +40,7 @@ public class ImportDataFromMongo {
 
 		if (NextUniqueIDsList.size() != 1) {
 			System.out
-					.println("The format of imported Next ID for Mining followers IDis wrong");
+					.println("The format of imported Next ID for Mining followers ID is wrong");
 		} else {
 			nextuniqueid = NextUniqueIDsList.get(0);
 		}
@@ -116,6 +116,23 @@ public class ImportDataFromMongo {
 		}
 
 		return nextuniqueid;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ArrayList<String> importAccountInfomation(Processing processing) {
+		// TODO Auto-generated method stub
+		ArrayList<String> AccountInfo = new ArrayList<String>();
+		DB db = processing.getDB();
+		String CollectionName = processing.getAccountInformation();
+		DBCollection AccountInfoCollection = db.getCollection(CollectionName);
+		
+		AccountInfo.addAll(AccountInfoCollection.distinct("weiboAccount"));
+		AccountInfo.addAll(AccountInfoCollection.distinct("weiboPassword"));
+		AccountInfo.addAll(AccountInfoCollection.distinct("weiboToken"));
+		AccountInfo.addAll(AccountInfoCollection.distinct("weiboTokenSecret"));
+		
+		return AccountInfo;
+		
 	}
 
 }

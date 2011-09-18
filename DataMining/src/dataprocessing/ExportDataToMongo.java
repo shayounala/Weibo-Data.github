@@ -196,4 +196,27 @@ public class ExportDataToMongo {
 		UserInformationCollection.update(query, userinformationobject);
 	}
 
+	public void ExportAccountInformation(Processing processing, String weiboAccount,
+			String weiboPassword, String weiboToken,
+			String weiboTokenSecret) {
+		// TODO Auto-generated method stub
+		DB db = processing.getDB();
+		String CollectionName = processing.getAccountInformation();
+		DBCollection AccountInformationCollection = db
+				.getCollection(CollectionName);
+		
+
+			BasicDBObject accountinfo = new BasicDBObject();
+			accountinfo.append("weiboAccount", weiboAccount);
+			System.out.println(weiboAccount);
+			accountinfo.append("weiboPassword", weiboPassword);
+			System.out.println(weiboPassword);
+			accountinfo.append("weiboToken", weiboToken);
+			System.out.println(weiboToken);
+			accountinfo.append("weiboTokenSecret", weiboTokenSecret);
+			System.out.println(weiboTokenSecret);
+			AccountInformationCollection.insert(accountinfo);
+		
+	}
+
 }
