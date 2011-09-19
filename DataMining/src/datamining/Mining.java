@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mongodb.MongoException;
+
+import dataprocessing.ExportDataToMongo;
 import dataprocessing.ImportDataFromMongo;
 import dataprocessing.Processing;
 import weibo4j.Status;
@@ -15,9 +17,11 @@ public class Mining {
 
 	public static final int WeiboNumberMax = 14;
 	private static int NextID;
-	private static ArrayList<Integer> UniqueUserIDList;
+	private static ArrayList<Long> UniqueUserIDList;
 	private static final int RateLimitMax = 1000;
 	private static Processing processing;
+	private static ImportDataFromMongo importdata = new ImportDataFromMongo();
+	private static ExportDataToMongo exportdata = new ExportDataToMongo();
 
 	/**
 	 * @param args
@@ -28,7 +32,8 @@ public class Mining {
 		
 		try {
 			processing = new Processing("mydb","AccountInformaiton", "NextIDs", "UniqueUserIDs",
-					"UserInformation");
+					"UserInformation", "UniqueTweetIDs", "TweetInformation");
+			processing.initiations();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -48,7 +53,6 @@ public class Mining {
 	private static void socialnetwork_Initiation(InitiationforWeibo initiation) {
 		// TODO Auto-generated method stub
 		SocialNetwork socialnetwork = new SocialNetwork();
-		ImportDataFromMongo importdata = new ImportDataFromMongo();
 		NextID = importdata.importNextUniqueIDFollowers(processing);
 		UniqueUserIDList = importdata.importUniqueUserIDs(processing);
 		datamining_FollowersID(socialnetwork, initiation);
@@ -62,12 +66,17 @@ public class Mining {
 			int RateLimitRemain = RateLimitMax;
 			for (int j = NextID; j < UniqueUserIDList.size(); j++) {
 				try {
+					ArrayList<Long> followers = new ArrayList<Long>();
 					RateLimitRemain = weibo.getRateLimitStatus()
 							.getRateLimitRemaining();
 					if (RateLimitRemain > 0) {
-						socialnetwork.getfollowersIDByUserID(weibo,
+						followers = socialnetwork.getfollowersIDByUserID(weibo,
 								UniqueUserIDList.get(j).toString());
 					}
+					NextID++;
+					exportdata.ExportNextUniqueIDFollowers(processing, NextID);
+					exportdata.ExportUniqueUserIDs(processing, followers);
+					exportdata.ExportUserFollowersID(processing, UniqueUserIDList.get(j), followers);
 				} catch (WeiboException e) {
 					// TODO Auto-generated catch block
 					System.out.println("RateLimitRemain: " + RateLimitRemain);
@@ -86,10 +95,10 @@ public class Mining {
 		 */
 		SocialNetwork socialnetwork = new SocialNetwork();
 		try {
-			long[] id = socialnetwork.getfollowersIDByUserID(weibo,
+			ArrayList<Long> id = socialnetwork.getfollowersIDByUserID(weibo,
 					"1774839495");
-			for (int i = 0; i < id.length; i++) {
-				System.out.println((i + 1) + ": " + id[i]);
+			for (int i = 0; i < id.size(); i++) {
+				System.out.println((i + 1) + ": " + id.get(i));
 			}
 		} catch (WeiboException e) {
 			// TODO Auto-generated catch block

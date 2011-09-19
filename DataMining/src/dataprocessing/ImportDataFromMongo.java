@@ -10,14 +10,14 @@ import com.mongodb.QueryOperators;
 public class ImportDataFromMongo {
 
 	@SuppressWarnings("unchecked")
-	public ArrayList<Integer> importUniqueUserIDs(Processing processing) {
+	public ArrayList<Long> importUniqueUserIDs(Processing processing) {
 
-		ArrayList<Integer> UniqueUserIDsList = new ArrayList<Integer>();
+		ArrayList<Long> UniqueUserIDsList = new ArrayList<Long>();
 		DB db = processing.getDB();
 		String CollectionName = processing.getUniqueUserIDs();
 
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
-		UniqueUserIDsList = (ArrayList<Integer>) UniqueUserIDsCollection
+		UniqueUserIDsList = (ArrayList<Long>) UniqueUserIDsCollection
 				.distinct("ID", (new BasicDBObject("ID", new BasicDBObject(
 						QueryOperators.EXISTS, true))));
 
@@ -134,5 +134,22 @@ public class ImportDataFromMongo {
 		return AccountInfo;
 		
 	}
+	
+	@SuppressWarnings("unchecked")
+	public ArrayList<Long> importUniqueTweetIDs(Processing processing) {
+
+		ArrayList<Long> UniqueTweetIDsList = new ArrayList<Long>();
+		DB db = processing.getDB();
+		String CollectionName = processing.getUniqueTweetIDs();
+
+		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
+		UniqueTweetIDsList = (ArrayList<Long>) UniqueUserIDsCollection
+				.distinct("ID", (new BasicDBObject("ID", new BasicDBObject(
+						QueryOperators.EXISTS, true))));
+
+		return UniqueTweetIDsList;
+	}
+	
+	
 
 }

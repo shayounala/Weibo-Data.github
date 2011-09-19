@@ -2,22 +2,26 @@ package dataprocessing;
 
 import java.net.UnknownHostException;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
+import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
 public class Processing {
 
 	public Processing(String dbname, String AccountInformation, String NextIDs, String UniqueUserIDs,
-			String UserInformation) throws UnknownHostException, MongoException {
+			String UserInformation, String UniqueTweetIDs, String TweetInformation) throws UnknownHostException, MongoException {
 		super();
 		this.dbname = dbname;
 		this.AccountInformation = AccountInformation;
 		this.NextIDs = NextIDs;
 		this.UniqueUserIDs = UniqueUserIDs;
 		this.UserInformation = UserInformation;
-		this.mongo = new Mongo();
-		;
+		this.UniqueTweetIDs = UniqueTweetIDs;
+		this.TweetInformation = TweetInformation;
+		this.mongo = new Mongo("localhost",27017);
+		
 	}
 
 	private String dbname;
@@ -25,6 +29,10 @@ public class Processing {
 	private String NextIDs;
 	private String UniqueUserIDs;
 	private String UserInformation;
+	private String UniqueTweetIDs;
+	private String TweetInformation;
+	
+
 	private Mongo mongo;
 
 	/**
@@ -46,7 +54,7 @@ public class Processing {
 		return UniqueUserIDs;
 	}
 
-	public String getUserinformation() {
+	public String getUserInformation() {
 		return UserInformation;
 	}
 
@@ -58,5 +66,36 @@ public class Processing {
 	public String getAccountInformation() {
 		return AccountInformation;
 	}
+	
+	public String getUniqueTweetIDs() {
+		// TODO Auto-generated method stub
+		return UniqueTweetIDs;
+	}
+	
+	public String getTweetInformation() {
+		return TweetInformation;
+	}
+
+	public void initiations() {
+		// TODO Auto-generated method stub
+		
+		DBCollection NextIDsCollection = getDB().getCollection(this.getNextIDs());
+		BasicDBObject NextIDsObject = new BasicDBObject();
+		NextIDsObject.put("Next ID for Mining followers ID",0);
+		NextIDsObject.put("Next ID for Mining friends ID",0);
+		NextIDsObject.put("Next ID for Mining Tweets",0);
+		NextIDsObject.put("Next Tweet ID for Mining Reposts",0);
+		NextIDsCollection.insert(NextIDsObject);
+		
+		DBCollection UniqueUserIDsCollection = getDB().getCollection(this.getUniqueUserIDs());
+		BasicDBObject initialUser = new BasicDBObject();
+		initialUser.put("Number", 0);
+		initialUser.put("ID", ((long)1774839495));
+		UniqueUserIDsCollection.insert(initialUser);
+		
+		
+	}
+
+	
 
 }
