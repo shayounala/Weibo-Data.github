@@ -16,12 +16,16 @@ import weibo4j.WeiboException;
 public class Mining {
 
 	public static final int WeiboNumberMax = 14;
-	private static int NextID;
-	private static ArrayList<Long> UniqueUserIDList;
-	private static final int RateLimitMax = 1000;
-	private static Processing processing;
-	private static ImportDataFromMongo importdata = new ImportDataFromMongo();
-	private static ExportDataToMongo exportdata = new ExportDataToMongo();
+	public static int NextFollowerID;
+	public static int NextFriendID;
+	public static int NextTweetID;
+	public static ArrayList<Long> UniqueUserIDList;
+	public static final int RateLimitMax = 1000;
+	public static Processing processing;
+	public static ImportDataFromMongo importdata;
+	public static ExportDataToMongo exportdata;
+	public static SocialNetwork socialnetwork;
+	public static InitiationforWeibo initiation;
 
 	/**
 	 * @param args
@@ -42,7 +46,11 @@ public class Mining {
 			e.printStackTrace();
 		}
 		
-		InitiationforWeibo initiation = new InitiationforWeibo(WeiboNumberMax);
+		
+		importdata = new ImportDataFromMongo();
+		exportdata = new ExportDataToMongo();
+		
+		initiation = new InitiationforWeibo(WeiboNumberMax);
 		initiation.afterinitiations(processing);
 		System.exit(0);
 		
@@ -52,40 +60,12 @@ public class Mining {
 
 	private static void socialnetwork_Initiation(InitiationforWeibo initiation) {
 		// TODO Auto-generated method stub
-		SocialNetwork socialnetwork = new SocialNetwork();
-		NextID = importdata.importNextUniqueIDFollowers(processing);
+		socialnetwork = new SocialNetwork();
+		NextFollowerID = importdata.importNextUniqueIDFollowers(processing);
 		UniqueUserIDList = importdata.importUniqueUserIDs(processing);
-		datamining_FollowersID(socialnetwork, initiation);
+		socialnetwork.datamining_FollowersID();
 	}
-
-	private static void datamining_FollowersID(SocialNetwork socialnetwork,
-			InitiationforWeibo initiation) {
-		// TODO Auto-generated method stub
-		for (int i = 0; i < WeiboNumberMax; i++) {
-			Weibo weibo = initiation.getWeiboList(i);
-			int RateLimitRemain = RateLimitMax;
-			for (int j = NextID; j < UniqueUserIDList.size(); j++) {
-				try {
-					ArrayList<Long> followers = new ArrayList<Long>();
-					RateLimitRemain = weibo.getRateLimitStatus()
-							.getRateLimitRemaining();
-					if (RateLimitRemain > 0) {
-						followers = socialnetwork.getfollowersIDByUserID(weibo,
-								UniqueUserIDList.get(j).toString());
-					}
-					NextID++;
-					exportdata.ExportNextUniqueIDFollowers(processing, NextID);
-					exportdata.ExportUniqueUserIDs(processing, followers);
-					exportdata.ExportUserFollowersID(processing, UniqueUserIDList.get(j), followers);
-				} catch (WeiboException e) {
-					// TODO Auto-generated catch block
-					System.out.println("RateLimitRemain: " + RateLimitRemain);
-					e.printStackTrace();
-				}
-
-			}
-		}
-	}
+	
 
 	public static void test() {
 		Weibo weibo = InitiationforWeibo.intiation();

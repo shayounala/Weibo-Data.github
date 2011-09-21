@@ -39,7 +39,7 @@ public class InitiationforWeibo {
 	private  ArrayList<Weibo> WeiboList;
 	
 	
-	public Weibo getWeiboList(int WeiboNumber) {
+	public Weibo getWeibo(int WeiboNumber) {
 		return WeiboList.get(WeiboNumber);
 	}
 
@@ -121,8 +121,6 @@ public class InitiationforWeibo {
 		
 		for(int i=0;i<AccountInfo.size();i++){
 			
-			System.out.println(AccountInfo.get(i));
-			
 			switch(i/this.WeiboNumberMax){
 			case 0:
 				weiboAccount[i] = AccountInfo.get(i);
@@ -139,7 +137,7 @@ public class InitiationforWeibo {
 			Weibo weibo = new Weibo();
 	        
 	        weibo.setToken(weiboToken[i], weiboTokenSecret[i]);
-	        System.out.println(weiboAccount[i]);
+
 	        try {
 				User user = weibo.verifyCredentials();
 				System.out.println(user.toString());

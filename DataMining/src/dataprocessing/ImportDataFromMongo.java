@@ -21,6 +21,7 @@ public class ImportDataFromMongo {
 				.distinct("ID", (new BasicDBObject("ID", new BasicDBObject(
 						QueryOperators.EXISTS, true))));
 
+		System.out.println("Import: Number of Unique User IDs: "+UniqueUserIDsList.size());
 		return UniqueUserIDsList;
 	}
 
@@ -45,6 +46,7 @@ public class ImportDataFromMongo {
 			nextuniqueid = NextUniqueIDsList.get(0);
 		}
 
+		System.out.println("Import: Next number of follower User IDs: "+nextuniqueid);
 		return nextuniqueid;
 	}
 
@@ -68,6 +70,7 @@ public class ImportDataFromMongo {
 			nextuniqueid = NextUniqueIDsList.get(0);
 		}
 
+		System.out.println("Import: Next number of friends User IDs: "+nextuniqueid);
 		return nextuniqueid;
 	}
 
@@ -91,6 +94,7 @@ public class ImportDataFromMongo {
 			nextuniqueid = NextUniqueIDsList.get(0);
 		}
 
+		System.out.println("Import: Next number of tweet User IDs: "+nextuniqueid);
 		return nextuniqueid;
 	}
 
@@ -115,6 +119,7 @@ public class ImportDataFromMongo {
 			nextuniqueid = NextUniqueIDsList.get(0);
 		}
 
+		System.out.println("Import: Next number of repost Tweet IDs: "+nextuniqueid);
 		return nextuniqueid;
 	}
 
@@ -147,6 +152,7 @@ public class ImportDataFromMongo {
 				.distinct("ID", (new BasicDBObject("ID", new BasicDBObject(
 						QueryOperators.EXISTS, true))));
 
+		System.out.println("Import: Number of Unique Tweet IDs: "+UniqueTweetIDsList.size());
 		return UniqueTweetIDsList;
 	}
 	
