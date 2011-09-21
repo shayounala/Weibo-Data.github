@@ -223,6 +223,27 @@ public class ExportDataToMongo {
 		
 		System.out.println("Export: Number of tweets User IDs: "+UserInformationCollection.find(new BasicDBObject("Tweets ID", new BasicDBObject(QueryOperators.EXISTS,true))).count());
 	}
+	
+	
+	public void ExportUniqueTweetsID(Processing processing,
+			ArrayList<Long> TweetsID) {
+
+		DB db = processing.getDB();
+		String CollectionName = processing.getUniqueTweetIDs();
+		DBCollection UniqueTweetIDsCollection = db
+				.getCollection(CollectionName);
+
+		for (int i = 0; i < TweetsID.size(); i++) {
+
+			UniqueTweetIDsCollection.insert(new BasicDBObject("Number", i)
+			.append("ID", TweetsID.get(i).intValue()));
+
+		}
+		
+		System.out.println("Export: Number of tweets IDs: "+UniqueTweetIDsCollection.find(new BasicDBObject("ID", new BasicDBObject(QueryOperators.EXISTS,true))).count());
+	}
+	
+	
 
 	public void ExportAccountInformation(Processing processing, String weiboAccount,
 			String weiboPassword, String weiboToken,
