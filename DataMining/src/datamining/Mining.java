@@ -15,7 +15,7 @@ import weibo4j.WeiboException;
 
 public class Mining {
 
-	public static final int WeiboNumberMax = 14;
+	public static final int WeiboNumberMax = 13;
 	public static int NextFollowerID;
 	public static int NextFriendID;
 	public static int NextTweetID;
@@ -25,6 +25,7 @@ public class Mining {
 	public static ImportDataFromMongo importdata;
 	public static ExportDataToMongo exportdata;
 	public static SocialNetwork socialnetwork;
+	public static InformationNetwork informationnetwork;
 	public static InitiationforWeibo initiation;
 
 	/**
@@ -32,7 +33,6 @@ public class Mining {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		//test();
 		
 		try {
 			processing = new Processing("mydb","AccountInformaiton", "NextIDs", "UniqueUserIDs",
@@ -51,8 +51,12 @@ public class Mining {
 		exportdata = new ExportDataToMongo();
 		
 		initiation = new InitiationforWeibo(WeiboNumberMax);
-		initiation.afterinitiations(processing);
-		System.exit(0);
+		initiation.initiations(processing);
+		
+		
+		//test();
+		//System.exit(0);
+		
 		
 		socialnetwork_Initiation(initiation);
 
@@ -68,7 +72,7 @@ public class Mining {
 	
 
 	public static void test() {
-		Weibo weibo = InitiationforWeibo.intiation();
+		Weibo weibo = initiation.getWeibo(0);
 
 		/*
 		 * test the social network mining
@@ -78,8 +82,10 @@ public class Mining {
 			ArrayList<Long> id = socialnetwork.getfollowersIDByUserID(weibo,
 					"1774839495");
 			for (int i = 0; i < id.size(); i++) {
-				System.out.println((i + 1) + ": " + id.get(i));
+				System.out.println((i + 1) + ": " + id.get(i).longValue());
 			}
+			
+			
 		} catch (WeiboException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -89,14 +95,18 @@ public class Mining {
 		 * test the tweet mining
 		 */
 		try {
-			Tweet tweet = new Tweet();
+			InformationNetwork tweet = new InformationNetwork();
 			List<Status> statuses = tweet.getUserTimeline(weibo, "1774839495");
 			System.out.println(statuses.size());
+			int statusesid = 1;
 			for (Status status : statuses) {
-				System.out.println(status.getUser().getId() + ":"
-						+ status.getId() + ":" + status.getText()
+				System.out.println(statusesid+"   "+status.getUser().getId() + ":"
+						+ status.getId() + ":"+status.getCreatedAt()+" : " + status.getText()
 						+ status.getRetweeted_status());
+				statusesid++;
 			}
+			//statuses = tweet.getRepostTimeline(weibo, Long.toString(statuses.get(0).getId()));
+			//System.out.println(statuses.size());
 		} catch (WeiboException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

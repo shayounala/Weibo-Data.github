@@ -23,7 +23,8 @@ public class Processing {
 		this.UserInformation = UserInformation;
 		this.UniqueTweetIDs = UniqueTweetIDs;
 		this.TweetInformation = TweetInformation;
-		this.mongo = new Mongo("localhost", 27017);
+		this.mongo = new Mongo("10.3.4.84", 27017);
+        mongo.getDB(dbname).authenticate("cssc", new char[]{'1'});
 
 	}
 
@@ -47,7 +48,6 @@ public class Processing {
 
 	public DB getDB() {
 		// TODO Auto-generated method stub
-
 		return mongo.getDB(dbname);
 	}
 
@@ -81,6 +81,7 @@ public class Processing {
 	public void initiations() {
 		// TODO Auto-generated method stub
 
+		//dropCollections();
 		DBCollection NextIDsCollection = getDB().getCollection(
 				this.getNextIDs());
 		
@@ -104,11 +105,28 @@ public class Processing {
 
 		DBCollection UniqueUserIDsCollection = getDB().getCollection(
 				this.getUniqueUserIDs());
+		
+		
 		BasicDBObject initialUser = new BasicDBObject();
-		initialUser.put("Number", 0);
-		initialUser.put("ID", ((long) 1774839495));
+		initialUser.put("User Number", 0);
+		initialUser.put("User ID", ((long) 1774839495));
 		UniqueUserIDsCollection.insert(initialUser);
 
+	}
+
+	private void dropCollections() {
+		// TODO Auto-generated method stub
+		DBCollection NextIDsCollection = getDB().getCollection(
+				this.getNextIDs());
+		NextIDsCollection.drop();
+		
+		DBCollection UniqueUserIDsCollection = getDB().getCollection(
+				this.getUniqueUserIDs());
+		UniqueUserIDsCollection.drop();
+		
+		DBCollection UserInformationCollection = getDB().getCollection(
+				this.getUserInformation());
+		UserInformationCollection.drop();
 	}
 
 }

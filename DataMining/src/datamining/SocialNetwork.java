@@ -103,23 +103,28 @@ public class SocialNetwork{
 		for (int i = 0; i < Mining.WeiboNumberMax; i++) {
 			Weibo weibo = Mining.initiation.getWeibo(i);
 			int RateLimitRemain = Mining.RateLimitMax;
-			for (int j = Mining.NextFollowerID; j < Mining.UniqueUserIDList.size(); j++) {
+			loop: for (int j = Mining.NextFollowerID; j < Mining.UniqueUserIDList.size(); j++) {
 				try {
+					
 					ArrayList<Long> followers = new ArrayList<Long>();
-					RateLimitRemain = weibo.getRateLimitStatus()
-							.getRateLimitRemaining();
+					
+					RateLimitRemain = weibo.getRateLimitStatus().getRemainingHits();
+					System.out.println("WeiboAccount: "+i);
 					if (RateLimitRemain > 0) {
 						followers = getfollowersIDByUserID(weibo,
-								Mining.UniqueUserIDList.get(j).toString());
+								String.valueOf(Mining.UniqueUserIDList.get(j)));
 					}
+					
 					Mining.NextFollowerID++;
 					Mining.exportdata.ExportNextUniqueIDFollowers(Mining.processing, Mining.NextFollowerID);
-					Mining.exportdata.ExportUniqueUserIDs(Mining.processing, followers);
-					Mining.exportdata.ExportUserFollowersID(Mining.processing, Mining.UniqueUserIDList.get(j), followers);
+					Mining.UniqueUserIDList.get(j).longValue();
+					Mining.exportdata.ExportUserFollowersID(Mining.processing, Mining.UniqueUserIDList.get(j).longValue(), followers);
+					Mining.UniqueUserIDList = Mining.exportdata.ExportUniqueUserIDs(Mining.processing, Mining.UniqueUserIDList, followers);
 				} catch (WeiboException e) {
 					// TODO Auto-generated catch block
 					System.out.println("RateLimitRemain: " + RateLimitRemain);
 					e.printStackTrace();
+					break loop;
 				}
 
 			}

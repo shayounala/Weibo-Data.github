@@ -65,7 +65,14 @@ public class InitiationforWeibo {
 	}
 	
 	public void initiations(Processing processing){
-		//processing.getDB().getCollection(processing.getAccountInformation()).drop();
+		/*
+		 * If the information of Weibo Account is initiated before, return the results of afterinitiations,
+		 * otherwise, fetch the information of Weibo Account by httpOauth.
+		 */
+		if(afterinitiations(processing)){
+			return;
+		}
+			
 		for(int i=0;i<WeiboNumberMax;i++){
 			try {
 				WeiboList.add(new Weibo());
@@ -114,10 +121,19 @@ public class InitiationforWeibo {
 		
 	}
 
-	public void afterinitiations(Processing processing) {
+	public boolean afterinitiations(Processing processing) {
 		// TODO Auto-generated method stub
+		boolean isInitialed = true;
+		
+		
 		ImportDataFromMongo imports = new ImportDataFromMongo();
-		ArrayList<String> AccountInfo = imports.importAccountInfomation(processing);
+		ArrayList<String> AccountInfo = imports.importAccountInfomation(processing, WeiboNumberMax);
+		
+		
+		if(AccountInfo.size() == 0){
+			isInitialed = false;
+			return isInitialed;
+		}
 		
 		for(int i=0;i<AccountInfo.size();i++){
 			
@@ -130,8 +146,11 @@ public class InitiationforWeibo {
 				weiboToken[i%this.WeiboNumberMax] = AccountInfo.get(i);
 			case 3:
 				weiboTokenSecret[i%this.WeiboNumberMax] = AccountInfo.get(i);
+				
+				System.out.println(AccountInfo.get(i));
 			}
 		}
+		
 		
 		for(int i=0;i<this.WeiboNumberMax;i++){
 			Weibo weibo = new Weibo();
@@ -143,11 +162,15 @@ public class InitiationforWeibo {
 				System.out.println(user.toString());
 			} catch (WeiboException e) {
 				// TODO Auto-generated catch block
+				System.out.println(i);
 				e.printStackTrace();
 			}
 	        
 	        WeiboList.add(weibo);
 		}
+		
+		System.out.println(isInitialed);
+		return isInitialed;
 	}
 	
 }

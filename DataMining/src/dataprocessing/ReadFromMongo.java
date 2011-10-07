@@ -1,6 +1,8 @@
 package dataprocessing;
 
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Date;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -10,6 +12,8 @@ import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 import com.mongodb.QueryOperators;
 
+import datamining.Mining;
+
 public class ReadFromMongo {
 
 	/**
@@ -18,19 +22,26 @@ public class ReadFromMongo {
 	 * @throws UnknownHostException 
 	 */
 	public static void main(String[] args) throws UnknownHostException, MongoException {
-		// TODO Auto-generated method stub
-		Mongo mongo = new Mongo("localhost",27017);
-		//mongo.dropDatabase("mydb");
-		DB db = mongo.getDB("testdb");
+		// TODO Auto-generated method stu
 		
-		DBCollection dbcollection = db.getCollection("UserInformation");
-		System.out.println(dbcollection.find(new BasicDBObject("ID",new BasicDBObject(QueryOperators.EXISTS,true))).count());
+		Mongo mongo = new Mongo("10.3.4.84",27017);
+		DB db = mongo.getDB("mydb");
+		//db.dropDatabase();
+		System.out.println(db.authenticate("cssc", new char []{'1'}));
+		//db.addUser("seu", new char []{'1'});
 		
-		int nextid = dbcollection.find(new BasicDBObject("ID",new BasicDBObject(QueryOperators.EXISTS,true))).count();
-		DBObject object = db.getCollection("NextIDs").findOne(new BasicDBObject("Next ID for Mining followers ID",new BasicDBObject(QueryOperators.EXISTS,true)));
-		object.put("Next ID for Mining followers ID", nextid);
-		db.getCollection("NextIDs").update(new BasicDBObject("Next ID for Mining followers ID",new BasicDBObject(QueryOperators.EXISTS,true)), object);
-		System.out.println(db.getCollection("NextIDs").findOne());
+		DBCollection AccountInformationCollection = db.getCollection("AccountInformation");
+		ArrayList<String> weiboaccount = (ArrayList<String>) AccountInformationCollection.distinct("weiboAccount");
+		ArrayList<String> weibopassword = (ArrayList<String>) AccountInformationCollection.distinct("weiboPassword");
+		ArrayList<String> weibotoken = (ArrayList<String>) AccountInformationCollection.distinct("weiboToken");
+		ArrayList<String> weibosecrettoken = (ArrayList<String>) AccountInformationCollection.distinct("weiboTokenSecret");
+	
+		for(int i=0;i<weiboaccount.size();i++){
+			System.out.println(weiboaccount.get(i));
+			System.out.println(weibopassword.get(i));
+			System.out.println(weibotoken.get(i));
+			System.out.println(weibosecrettoken.get(i));
+		}
 	}
 
 }

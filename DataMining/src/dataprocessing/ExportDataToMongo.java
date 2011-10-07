@@ -1,6 +1,7 @@
 package dataprocessing;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -9,42 +10,30 @@ import com.mongodb.QueryOperators;
 
 public class ExportDataToMongo {
 
-	public void ExportUniqueUserIDs(Processing processing,
-			ArrayList<Long> UniqueUserIDsList) {
+	@SuppressWarnings("unchecked")
+	public ArrayList<Long> ExportUniqueUserIDs(Processing processing,
+			ArrayList<Long> UniqueUserIDsList, ArrayList<Long> Followers) {
 
 		DB db = processing.getDB();
 		String CollectionName = processing.getUniqueUserIDs();
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
-
-		for (int i = 0; i < UniqueUserIDsList.size(); i++) {
-			if(UniqueUserIDsCollection.findOne(new BasicDBObject("ID",UniqueUserIDsList.get(i))) == null){
-				UniqueUserIDsCollection.insert(new BasicDBObject("Number", i)
-				.append("ID", UniqueUserIDsList.get(i).intValue()));
+		System.out.println(new Date(System.currentTimeMillis()));
+		for(int i=0;i<Followers.size();i++){
+			
+			for(int j=0;j<UniqueUserIDsList.size();j++){
+				if(UniqueUserIDsList.get(j).longValue()==Followers.get(i).longValue()){
+					UniqueUserIDsList.add(Followers.get(i));
+				}
 			}
-
 		}
-		
-		System.out.println("Export: Number of Unique User IDs: "+UniqueUserIDsCollection.find().count());
+		System.out.println(new Date(System.currentTimeMillis()));
+		BasicDBObject query = new BasicDBObject("User ID", new BasicDBObject(QueryOperators.EXISTS,true));
+		BasicDBObject updatedresults = new BasicDBObject("User ID", UniqueUserIDsList);
+		UniqueUserIDsCollection.update(query, updatedresults);
+		System.out.println(new Date(System.currentTimeMillis()));
+		System.out.println("Export: Number of Unique User IDs: "+UniqueUserIDsList.size());
 
-	}
-	
-	
-	public void ExportUniqueTweetIDs(Processing processing,
-			ArrayList<Long> UniqueTweetIDsList) {
-
-		DB db = processing.getDB();
-		String CollectionName = processing.getUniqueTweetIDs();
-		DBCollection UniqueTweetIDsCollection = db.getCollection(CollectionName);
-
-		for (int i = 0; i < UniqueTweetIDsList.size(); i++) {
-			if(UniqueTweetIDsCollection.findOne(new BasicDBObject("ID",UniqueTweetIDsList.get(i))) == null){
-				UniqueTweetIDsCollection.insert(new BasicDBObject("Number", i)
-				.append("ID", UniqueTweetIDsList.get(i).intValue()));
-			}
-
-		}
-		
-		System.out.println("Export: Number of Unique Tweet IDs: "+UniqueTweetIDsCollection.find().count());
+		return UniqueUserIDsList;
 
 	}
 	
@@ -165,13 +154,14 @@ public class ExportDataToMongo {
 		DBCollection UserInformationCollection = db
 				.getCollection(CollectionName);
 
-		BasicDBObject query = new BasicDBObject("ID", userid);
+		BasicDBObject query = new BasicDBObject("User ID", userid);
 		BasicDBObject userinformationobject = (BasicDBObject) UserInformationCollection
 				.findOne(query);
 		if (userinformationobject == null) {
-			userinformationobject = new BasicDBObject("ID", userid);
+			userinformationobject = new BasicDBObject("User ID", userid);
+			UserInformationCollection.insert(userinformationobject);
 		}
-		if (userinformationobject.getBoolean("Followers ID")) {
+		if (userinformationobject.get("Followers ID")!=null) {
 			return;
 		}
 
@@ -190,7 +180,7 @@ public class ExportDataToMongo {
 		DBCollection UserInformationCollection = db
 				.getCollection(CollectionName);
 
-		BasicDBObject query = new BasicDBObject("ID", userid);
+		BasicDBObject query = new BasicDBObject("User ID", userid);
 		BasicDBObject userinformationobject = (BasicDBObject) UserInformationCollection
 				.findOne(query);
 		if (userinformationobject.getBoolean("Friends ID")) {
@@ -235,12 +225,12 @@ public class ExportDataToMongo {
 
 		for (int i = 0; i < TweetsID.size(); i++) {
 
-			UniqueTweetIDsCollection.insert(new BasicDBObject("Number", i)
-			.append("ID", TweetsID.get(i).intValue()));
+			UniqueTweetIDsCollection.insert(new BasicDBObject("Tweet Number", i)
+			.append("Tweet ID", TweetsID.get(i).intValue()));
 
 		}
 		
-		System.out.println("Export: Number of tweets IDs: "+UniqueTweetIDsCollection.find(new BasicDBObject("ID", new BasicDBObject(QueryOperators.EXISTS,true))).count());
+		System.out.println("Export: Number of tweets IDs: "+UniqueTweetIDsCollection.find(new BasicDBObject("Tweet ID", new BasicDBObject(QueryOperators.EXISTS,true))).count());
 	}
 	
 	
@@ -255,16 +245,16 @@ public class ExportDataToMongo {
 				.getCollection(CollectionName);
 		
 
-			BasicDBObject accountinfo = new BasicDBObject();
-			accountinfo.append("weiboAccount", weiboAccount);
-			System.out.println(weiboAccount);
-			accountinfo.append("weiboPassword", weiboPassword);
-			System.out.println(weiboPassword);
-			accountinfo.append("weiboToken", weiboToken);
-			System.out.println(weiboToken);
-			accountinfo.append("weiboTokenSecret", weiboTokenSecret);
-			System.out.println(weiboTokenSecret);
-			AccountInformationCollection.insert(accountinfo);
+		BasicDBObject accountinfo = new BasicDBObject();
+		accountinfo.append("weiboAccount", weiboAccount);
+		System.out.println(weiboAccount);
+		accountinfo.append("weiboPassword", weiboPassword);
+		System.out.println(weiboPassword);
+		accountinfo.append("weiboToken", weiboToken);
+		System.out.println(weiboToken);
+		accountinfo.append("weiboTokenSecret", weiboTokenSecret);
+		System.out.println(weiboTokenSecret);
+		AccountInformationCollection.insert(accountinfo);
 		
 	}
 	
@@ -276,12 +266,12 @@ public class ExportDataToMongo {
 		DBCollection UserInformationCollection = db
 				.getCollection(CollectionName);
 
-		BasicDBObject query = new BasicDBObject("ID", tweetid);
+		BasicDBObject query = new BasicDBObject("Tweet ID", tweetid);
 		BasicDBObject tweetinformationobject = (BasicDBObject) UserInformationCollection
 				.findOne(query);
 		
 		if (tweetinformationobject == null) {
-			tweetinformationobject = new BasicDBObject("ID", tweetid);
+			tweetinformationobject = new BasicDBObject("Tweet ID", tweetid);
 		}
 		
 		if (tweetinformationobject.getBoolean("Tweet")) {
@@ -300,7 +290,7 @@ public class ExportDataToMongo {
 		DBCollection UserInformationCollection = db
 				.getCollection(CollectionName);
 
-		BasicDBObject query = new BasicDBObject("ID", userid);
+		BasicDBObject query = new BasicDBObject("Tweet ID", userid);
 		BasicDBObject tweetinformationobject = (BasicDBObject) UserInformationCollection
 				.findOne(query);
 		if (tweetinformationobject.getBoolean("Repost")) {

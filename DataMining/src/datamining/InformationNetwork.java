@@ -7,7 +7,7 @@ import weibo4j.Status;
 import weibo4j.Weibo;
 import weibo4j.WeiboException;
 
-public class Tweet {
+public class InformationNetwork {
 
 	/**
 	 * @param weibo
@@ -22,6 +22,8 @@ public class Tweet {
 		paging.setCount(Countmax);
 		
 		List<Status> statuses=weibo.getUserTimeline(screenName,0,1,paging);
+		paging.setPage(2);
+		statuses.addAll(weibo.getUserTimeline(screenName,0,1, paging));
 		
 		return statuses;
 	}
@@ -37,7 +39,6 @@ public class Tweet {
 		
 		Paging paging = new Paging();
 		paging.setCount(Countmax);
-		
 		List<Status> statuses = weibo.getreposttimeline(id, paging);
 		
 		return statuses;

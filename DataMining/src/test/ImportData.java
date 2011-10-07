@@ -1,4 +1,4 @@
-package dataprocessing;
+package test;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -112,7 +112,7 @@ public class ImportData {
 			e1.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		
 		return FileNumber_FollowersID;

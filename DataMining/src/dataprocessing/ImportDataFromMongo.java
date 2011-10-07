@@ -17,9 +17,7 @@ public class ImportDataFromMongo {
 		String CollectionName = processing.getUniqueUserIDs();
 
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
-		UniqueUserIDsList = (ArrayList<Long>) UniqueUserIDsCollection
-				.distinct("ID", (new BasicDBObject("ID", new BasicDBObject(
-						QueryOperators.EXISTS, true))));
+		UniqueUserIDsList = (ArrayList<Long>) UniqueUserIDsCollection.findOne().get("User ID");
 
 		System.out.println("Import: Number of Unique User IDs: "+UniqueUserIDsList.size());
 		return UniqueUserIDsList;
@@ -149,11 +147,41 @@ public class ImportDataFromMongo {
 
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
 		UniqueTweetIDsList = (ArrayList<Long>) UniqueUserIDsCollection
-				.distinct("ID", (new BasicDBObject("ID", new BasicDBObject(
+				.distinct("Tweet ID", (new BasicDBObject("Tweet ID", new BasicDBObject(
 						QueryOperators.EXISTS, true))));
 
 		System.out.println("Import: Number of Unique Tweet IDs: "+UniqueTweetIDsList.size());
 		return UniqueTweetIDsList;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ArrayList<String> importAccountInfomation(Processing processing,
+			int weiboNumberMax) {
+		// TODO Auto-generated method stub
+		ArrayList<String> AccountInfo = new ArrayList<String>();
+		DB db = processing.getDB();
+		String CollectionName = processing.getAccountInformation();
+		DBCollection AccountInfoCollection = db.getCollection(CollectionName);
+
+		ArrayList<String> weiboaccount = (ArrayList<String>) AccountInfoCollection.distinct("weiboAccount");
+		ArrayList<String> weibopassword = (ArrayList<String>) AccountInfoCollection.distinct("weiboPassword");
+		ArrayList<String> weibotoken = (ArrayList<String>) AccountInfoCollection.distinct("weiboToken");
+		ArrayList<String> weibosecrettoken = (ArrayList<String>) AccountInfoCollection.distinct("weiboTokenSecret");
+		
+		for(int i=0;i<weiboNumberMax;i++){
+			AccountInfo.add(weiboaccount.get(i));
+		}
+		for(int i=0;i<weiboNumberMax;i++){
+			AccountInfo.add(weibopassword.get(i));
+		}
+		for(int i=0;i<weiboNumberMax;i++){
+			AccountInfo.add(weibotoken.get(i));
+		}
+		for(int i=0;i<weiboNumberMax;i++){
+			AccountInfo.add(weibosecrettoken.get(i));
+		}
+		
+		return AccountInfo;
 	}
 	
 	
