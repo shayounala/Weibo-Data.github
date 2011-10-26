@@ -1,6 +1,7 @@
 package dataprocessing;
 
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -24,7 +25,7 @@ public class Processing {
 		this.UniqueTweetIDs = UniqueTweetIDs;
 		this.TweetInformation = TweetInformation;
 		this.mongo = new Mongo("10.3.4.84", 27017);
-        mongo.getDB(dbname).authenticate("cssc", new char[]{'1'});
+        System.out.println(mongo.getDB(dbname).authenticate("cssc", new char[]{'1'}));
 
 	}
 
@@ -37,14 +38,6 @@ public class Processing {
 	private String TweetInformation;
 
 	private Mongo mongo;
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
 
 	public DB getDB() {
 		// TODO Auto-generated method stub
@@ -78,6 +71,9 @@ public class Processing {
 		return TweetInformation;
 	}
 
+	/**
+	 * initiate the database
+	 */
 	public void initiations() {
 		// TODO Auto-generated method stub
 
@@ -95,21 +91,27 @@ public class Processing {
 		}
 		
 		
-		
+		/*
+		 * initiate the initial values of next id for mining followers, friends, tweets and reposts
+		 */
 		BasicDBObject NextIDsObject = new BasicDBObject();
 		NextIDsObject.put("Next ID for Mining followers ID", 0);
 		NextIDsObject.put("Next ID for Mining friends ID", 0);
 		NextIDsObject.put("Next ID for Mining Tweets", 0);
 		NextIDsObject.put("Next Tweet ID for Mining Reposts", 0);
 		NextIDsCollection.insert(NextIDsObject);
-
+		
 		DBCollection UniqueUserIDsCollection = getDB().getCollection(
 				this.getUniqueUserIDs());
 		
-		
+		/*
+		 * initiate the initial user for data mining
+		 */
 		BasicDBObject initialUser = new BasicDBObject();
 		initialUser.put("User Number", 0);
-		initialUser.put("User ID", ((long) 1774839495));
+		ArrayList<Long> initialUniqueUserIDsList = new ArrayList<Long>();
+		initialUniqueUserIDsList.add(Long.valueOf(1774839495));
+		initialUser.put("User ID", initialUniqueUserIDsList);
 		UniqueUserIDsCollection.insert(initialUser);
 
 	}

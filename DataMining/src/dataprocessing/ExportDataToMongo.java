@@ -1,43 +1,89 @@
 package dataprocessing;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.Bytes;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.QueryOperators;
+
+import datamining.Mining;
 
 public class ExportDataToMongo {
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * @param processing
+	 * @param UniqueUserIDsList
+	 * @param Followers
+	 * @return
+	 */
 	public ArrayList<Long> ExportUniqueUserIDs(Processing processing,
 			ArrayList<Long> UniqueUserIDsList, ArrayList<Long> Followers) {
 
+		if(UniqueUserIDsList.size()>=1000000){
+			return UniqueUserIDsList;
+		}
 		DB db = processing.getDB();
 		String CollectionName = processing.getUniqueUserIDs();
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
 		System.out.println(new Date(System.currentTimeMillis()));
+		ArrayList<Long> NewIDs = new ArrayList<Long>();
 		for(int i=0;i<Followers.size();i++){
-			
-			for(int j=0;j<UniqueUserIDsList.size();j++){
+			boolean exist = false;//store if the followers id exists in uniqueuseridslist
+			loop:for(int j=0;j<UniqueUserIDsList.size();j++){
 				if(UniqueUserIDsList.get(j).longValue()==Followers.get(i).longValue()){
-					UniqueUserIDsList.add(Followers.get(i));
+					exist = true;
+					break loop;
 				}
+			}
+			//if follower id doesn't exist, add it to uniqueuseridslist
+			if(!exist){
+				UniqueUserIDsList.add(Followers.get(i));
+				NewIDs.add(Followers.get(i));
 			}
 		}
 		System.out.println(new Date(System.currentTimeMillis()));
-		BasicDBObject query = new BasicDBObject("User ID", new BasicDBObject(QueryOperators.EXISTS,true));
-		BasicDBObject updatedresults = new BasicDBObject("User ID", UniqueUserIDsList);
-		UniqueUserIDsCollection.update(query, updatedresults);
-		System.out.println(new Date(System.currentTimeMillis()));
+		UniqueUserIDsCollection.insert(new BasicDBObject("User ID",NewIDs));
+		System.out.println(new Date());
+		if(UniqueUserIDsCollection.getCount()>=1000){
+			AdjusttheData(UniqueUserIDsCollection,UniqueUserIDsList);
+		}
 		System.out.println("Export: Number of Unique User IDs: "+UniqueUserIDsList.size());
 
 		return UniqueUserIDsList;
 
 	}
-	
 
+	/**
+	 * @param uniqueUserIDsCollection
+	 * @param uniqueUserIDsList
+	 *            If the number of the BasicDBObject in the collection is more
+	 *            than 1000, adjust the number of IDs in every BasicDBObject
+	 *            with Mining.SingleMaxforUniqueIDs
+	 */
+	private void AdjusttheData(DBCollection uniqueUserIDsCollection, ArrayList<Long> uniqueUserIDsList) {
+		// TODO Auto-generated method stub
+		uniqueUserIDsCollection.drop();
+		ArrayList<Long> grandIDs = new ArrayList<Long>();
+		for(int i=0;i<uniqueUserIDsList.size();i++){
+			grandIDs.add(uniqueUserIDsList.get(i));
+			if(i%Mining.SingleMaxforUniqueIDs == Mining.SingleMaxforUniqueIDs-1){
+				uniqueUserIDsCollection.insert(new BasicDBObject("User ID",grandIDs));
+				grandIDs.clear();
+			}
+		}
+		
+	}
+
+
+	/**
+	 * @param processing
+	 * @param nextuniqueid
+	 */
 	@SuppressWarnings("unchecked")
 	public void ExportNextUniqueIDFollowers(Processing processing,
 			int nextuniqueid) {
@@ -66,6 +112,10 @@ public class ExportDataToMongo {
 
 	}
 
+	/**
+	 * @param processing
+	 * @param nextuniqueid
+	 */
 	@SuppressWarnings("unchecked")
 	public void ExportNextUniqueIDFriends(Processing processing,
 			int nextuniqueid) {
@@ -93,6 +143,10 @@ public class ExportDataToMongo {
 
 	}
 
+	/**
+	 * @param processing
+	 * @param nextuniqueid
+	 */
 	@SuppressWarnings("unchecked")
 	public void ExportNextUniqueIDTweet(Processing processing, int nextuniqueid) {
 
@@ -119,6 +173,10 @@ public class ExportDataToMongo {
 
 	}
 
+	/**
+	 * @param processing
+	 * @param nextuniqueid
+	 */
 	@SuppressWarnings("unchecked")
 	public void ExportNextTweetIDRepost(Processing processing, int nextuniqueid) {
 
@@ -146,6 +204,11 @@ public class ExportDataToMongo {
 
 	}
 
+	/**
+	 * @param processing
+	 * @param userid
+	 * @param followers
+	 */
 	public void ExportUserFollowersID(Processing processing, long userid,
 			ArrayList<Long> followers) {
 
@@ -172,6 +235,11 @@ public class ExportDataToMongo {
 		System.out.println("Export: Number of followers User IDs: "+UserInformationCollection.find(new BasicDBObject("Followers ID", new BasicDBObject(QueryOperators.EXISTS,true))).count());
 	}
 
+	/**
+	 * @param processing
+	 * @param userid
+	 * @param friends
+	 */
 	public void ExportUserFriendsID(Processing processing, long userid,
 			ArrayList<Long> friends) {
 
@@ -193,6 +261,11 @@ public class ExportDataToMongo {
 		System.out.println("Export: Number of friends User IDs: "+UserInformationCollection.find(new BasicDBObject("Friends ID", new BasicDBObject(QueryOperators.EXISTS,true))).count());
 	}
 
+	/**
+	 * @param processing
+	 * @param userid
+	 * @param TweetsID
+	 */
 	public void ExportUserTweetsID(Processing processing, long userid,
 			ArrayList<Long> TweetsID) {
 
@@ -215,6 +288,10 @@ public class ExportDataToMongo {
 	}
 	
 	
+	/**
+	 * @param processing
+	 * @param TweetsID
+	 */
 	public void ExportUniqueTweetsID(Processing processing,
 			ArrayList<Long> TweetsID) {
 
@@ -235,6 +312,13 @@ public class ExportDataToMongo {
 	
 	
 
+	/**
+	 * @param processing
+	 * @param weiboAccount
+	 * @param weiboPassword
+	 * @param weiboToken
+	 * @param weiboTokenSecret
+	 */
 	public void ExportAccountInformation(Processing processing, String weiboAccount,
 			String weiboPassword, String weiboToken,
 			String weiboTokenSecret) {
@@ -258,6 +342,11 @@ public class ExportDataToMongo {
 		
 	}
 	
+	/**
+	 * @param processing
+	 * @param tweetid
+	 * @param tweets
+	 */
 	public void ExportUserTweetInformationID(Processing processing, long tweetid,
 			ArrayList<Long> tweets) {
 
@@ -282,6 +371,11 @@ public class ExportDataToMongo {
 		UserInformationCollection.update(query, tweetinformationobject);
 	}
 	
+	/**
+	 * @param processing
+	 * @param userid
+	 * @param reposts
+	 */
 	public void ExportTweetReposts(Processing processing, long userid,
 			ArrayList<Long> reposts) {
 

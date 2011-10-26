@@ -98,6 +98,9 @@ public class SocialNetwork{
 		return friends;
 	}
 
+	/**
+	 * Mining the followers id and export results of mining to database
+	 */
 	public void datamining_FollowersID() {
 		// TODO Auto-generated method stub
 		for (int i = 0; i < Mining.WeiboNumberMax; i++) {

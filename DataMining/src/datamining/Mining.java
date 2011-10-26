@@ -21,6 +21,7 @@ public class Mining {
 	public static int NextTweetID;
 	public static ArrayList<Long> UniqueUserIDList;
 	public static final int RateLimitMax = 1000;
+	public static final int SingleMaxforUniqueIDs = 10000;
 	public static Processing processing;
 	public static ImportDataFromMongo importdata;
 	public static ExportDataToMongo exportdata;
@@ -35,7 +36,7 @@ public class Mining {
 		// TODO Auto-generated method stub
 		
 		try {
-			processing = new Processing("mydb","AccountInformaiton", "NextIDs", "UniqueUserIDs",
+			processing = new Processing("mydb","AccountInformation", "NextIDs", "UniqueUserIDs",
 					"UserInformation", "UniqueTweetIDs", "TweetInformation");
 			processing.initiations();
 		} catch (UnknownHostException e) {

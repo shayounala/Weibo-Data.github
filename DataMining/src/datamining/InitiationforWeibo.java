@@ -31,12 +31,12 @@ public class InitiationforWeibo {
     	System.setProperty("weibo4j.oauth.consumerSecret", Weibo.CONSUMER_SECRET);
 	}
 
-	public  int WeiboNumberMax;
+	public  int WeiboNumberMax;//the maximum number of weibo for mining
 	private  String [] weiboAccount;//weibo account
 	private  String [] weiboPassword;//weibo password
 	private  String [] weiboToken;//Tokens of weibo account
 	private  String [] weiboTokenSecret;//Tokensecrets of weibo account
-	private  ArrayList<Weibo> WeiboList;
+	private  ArrayList<Weibo> WeiboList;//objects of weibo using for mining
 	
 	
 	public Weibo getWeibo(int WeiboNumber) {
@@ -64,6 +64,10 @@ public class InitiationforWeibo {
         return weibo;
 	}
 	
+	/**
+	 * @param processing
+	 * initiate the WeiboList with weibos, the number of weibos is WeiboNumberMax
+	 */
 	public void initiations(Processing processing){
 		/*
 		 * If the information of Weibo Account is initiated before, return the results of afterinitiations,
@@ -121,6 +125,11 @@ public class InitiationforWeibo {
 		
 	}
 
+	/**
+	 * @param processing
+	 * @return whether the account information is fetched by HttpOauth at the first time
+	 * if the return is true, initiate weibo accounts from the database
+	 */
 	public boolean afterinitiations(Processing processing) {
 		// TODO Auto-generated method stub
 		boolean isInitialed = true;

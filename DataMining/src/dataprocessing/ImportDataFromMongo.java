@@ -1,14 +1,20 @@
 package dataprocessing;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.QueryOperators;
 
 public class ImportDataFromMongo {
 
+	/**
+	 * @param processing
+	 * @return the arraylist of all the unique users ids
+	 */
 	@SuppressWarnings("unchecked")
 	public ArrayList<Long> importUniqueUserIDs(Processing processing) {
 
@@ -17,12 +23,20 @@ public class ImportDataFromMongo {
 		String CollectionName = processing.getUniqueUserIDs();
 
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
-		UniqueUserIDsList = (ArrayList<Long>) UniqueUserIDsCollection.findOne().get("User ID");
+		DBCursor cursor = UniqueUserIDsCollection.find(new BasicDBObject("User ID",
+				new BasicDBObject(QueryOperators.EXISTS, true)));
+		for(int i=0;i<cursor.count();i++){
+			UniqueUserIDsList.addAll((Collection<? extends Long>) cursor.next().get("User ID"));
+		}
 
 		System.out.println("Import: Number of Unique User IDs: "+UniqueUserIDsList.size());
 		return UniqueUserIDsList;
 	}
 
+	/**
+	 * @param processing
+	 * @return the next id for mining followers
+	 */
 	@SuppressWarnings("unchecked")
 	public int importNextUniqueIDFollowers(Processing processing) {
 
@@ -48,6 +62,10 @@ public class ImportDataFromMongo {
 		return nextuniqueid;
 	}
 
+	/**
+	 * @param processing
+	 * @return the next id for mining friends
+	 */
 	@SuppressWarnings("unchecked")
 	public int importNextUniqueIDFriends(Processing processing) {
 
@@ -72,6 +90,10 @@ public class ImportDataFromMongo {
 		return nextuniqueid;
 	}
 
+	/**
+	 * @param processing
+	 * @return the next id for mining tweets
+	 */
 	@SuppressWarnings("unchecked")
 	public int importNextUniqueIDTweet(Processing processing) {
 
@@ -96,6 +118,10 @@ public class ImportDataFromMongo {
 		return nextuniqueid;
 	}
 
+	/**
+	 * @param processing
+	 * @return the next tweet id for mining repost
+	 */
 	@SuppressWarnings("unchecked")
 	public int importNextTweetIDRepost(Processing processing) {
 
@@ -121,6 +147,11 @@ public class ImportDataFromMongo {
 		return nextuniqueid;
 	}
 
+	/**
+	 * @param processing
+	 * @return all the accounts information in the database, the structure of the results follows:
+	 * all the Account Name, all the Account Password, all the Account Token, all the Account Secret Token
+	 */
 	@SuppressWarnings("unchecked")
 	public ArrayList<String> importAccountInfomation(Processing processing) {
 		// TODO Auto-generated method stub
@@ -138,6 +169,10 @@ public class ImportDataFromMongo {
 		
 	}
 	
+	/**
+	 * @param processing
+	 * @return the arraylist of all the unique tweet ids
+	 */
 	@SuppressWarnings("unchecked")
 	public ArrayList<Long> importUniqueTweetIDs(Processing processing) {
 
@@ -154,6 +189,12 @@ public class ImportDataFromMongo {
 		return UniqueTweetIDsList;
 	}
 
+	/**
+	 * @param processing
+	 * @param weiboNumberMax
+	 * @return return the accounts information (number of the accounts is weiboNumberMax) from the database, the structure of the results follows:
+	 * weiboNumberMax of Account Name, weiboNumberMax of Account Password, weiboNumberMax of Account Token, weiboNumberMax of Account SecretToken
+	 */
 	@SuppressWarnings("unchecked")
 	public ArrayList<String> importAccountInfomation(Processing processing,
 			int weiboNumberMax) {
