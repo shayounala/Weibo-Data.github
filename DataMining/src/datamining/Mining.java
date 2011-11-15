@@ -15,7 +15,7 @@ import weibo4j.WeiboException;
 
 public class Mining {
 
-	public static final int WeiboNumberMax = 13;
+	public static final int WeiboNumberMax = 4;
 	public static int NextFollowerID;
 	public static int NextFriendID;
 	public static int NextTweetID;
@@ -36,7 +36,7 @@ public class Mining {
 		// TODO Auto-generated method stub
 		
 		try {
-			processing = new Processing("mydb","AccountInformation", "NextIDs", "UniqueUserIDs",
+			processing = new Processing("mydb","AccountInformation1", "NextIDs", "UniqueUserIDs",
 					"UserInformation", "UniqueTweetIDs", "TweetInformation");
 			processing.initiations();
 		} catch (UnknownHostException e) {
@@ -60,7 +60,18 @@ public class Mining {
 		
 		
 		socialnetwork_Initiation(initiation);
+		//informationnetwork_Initiation(initiation);
 
+	}
+
+	private static void informationnetwork_Initiation(
+			InitiationforWeibo initiation2) {
+		// TODO Auto-generated method stub
+		informationnetwork = new InformationNetwork();
+		NextTweetID = importdata.importNextUniqueIDTweet(processing);
+		UniqueUserIDList = importdata.importUniqueUserIDs(processing);
+		informationnetwork.datamining_Tweets();
+		
 	}
 
 	private static void socialnetwork_Initiation(InitiationforWeibo initiation) {
@@ -97,17 +108,19 @@ public class Mining {
 		 */
 		try {
 			InformationNetwork tweet = new InformationNetwork();
-			List<Status> statuses = tweet.getUserTimeline(weibo, "1774839495");
+			List<Status> statuses = tweet.getUserTimeline(weibo, "1750903687");
 			System.out.println(statuses.size());
 			int statusesid = 1;
 			for (Status status : statuses) {
 				System.out.println(statusesid+"   "+status.getUser().getId() + ":"
-						+ status.getId() + ":"+status.getCreatedAt()+" : " + status.getText()
-						+ status.getRetweeted_status());
+						+ status.getId() + ":"+status.getCreatedAt().getTime()+" : " 
+						+ status.getInReplyToUserId());
 				statusesid++;
 			}
+			
+			
 			//statuses = tweet.getRepostTimeline(weibo, Long.toString(statuses.get(0).getId()));
-			//System.out.println(statuses.size());
+			//System.out.println(statuses.get(0));
 		} catch (WeiboException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

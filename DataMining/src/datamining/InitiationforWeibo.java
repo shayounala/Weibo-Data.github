@@ -27,8 +27,20 @@ public class InitiationforWeibo {
 		weiboToken = new String [WeiboNumberMax];
 		weiboTokenSecret = new String [WeiboNumberMax];
 		WeiboList = new ArrayList<Weibo>();
+		newApplication();
+		
 		System.setProperty("weibo4j.oauth.consumerKey", Weibo.CONSUMER_KEY);
     	System.setProperty("weibo4j.oauth.consumerSecret", Weibo.CONSUMER_SECRET);
+	}
+
+	/**
+	 * Mining data with another application.
+	 * In details, we just change the consumer_key and consumer_secret in Class Weibo.
+	 */
+	private void newApplication() {
+		// TODO Auto-generated method stub
+		Weibo.CONSUMER_KEY = "1372154034";
+		Weibo.CONSUMER_SECRET = "c79efb329eb95baa1bd2f515820efe2d";
 	}
 
 	public  int WeiboNumberMax;//the maximum number of weibo for mining

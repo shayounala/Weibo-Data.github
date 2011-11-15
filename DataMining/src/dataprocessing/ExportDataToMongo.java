@@ -265,23 +265,30 @@ public class ExportDataToMongo {
 	 * @param processing
 	 * @param userid
 	 * @param TweetsID
+	 * @param repostsTime 
+	 * @param repostsUserID 
+	 * @param repostsID 
 	 */
 	public void ExportUserTweetsID(Processing processing, long userid,
-			ArrayList<Long> TweetsID) {
+			ArrayList<Long> TweetsID, ArrayList<Long> TweetsTime, ArrayList<Long> repostsID, ArrayList<Long> repostsUserID, ArrayList<Long> repostsTime) {
 
 		DB db = processing.getDB();
 		String CollectionName = processing.getUserInformation();
 		DBCollection UserInformationCollection = db
 				.getCollection(CollectionName);
 
-		BasicDBObject query = new BasicDBObject("ID", userid);
+		BasicDBObject query = new BasicDBObject("User ID", userid);
 		BasicDBObject userinformationobject = (BasicDBObject) UserInformationCollection
 				.findOne(query);
 		if (userinformationobject.getBoolean("Tweets ID")) {
 			return;
 		}
 
-		userinformationobject.put("Tweets ID", TweetsID);
+		userinformationobject.append("Tweets ID", TweetsID);
+		userinformationobject.append("Tweets Time", TweetsTime);
+		userinformationobject.append("Reposts ID", repostsID);
+		userinformationobject.append("Reposts User ID", repostsUserID);
+		userinformationobject.append("Reposts Time", repostsTime);
 		UserInformationCollection.update(query, userinformationobject);
 		
 		System.out.println("Export: Number of tweets User IDs: "+UserInformationCollection.find(new BasicDBObject("Tweets ID", new BasicDBObject(QueryOperators.EXISTS,true))).count());
@@ -348,7 +355,7 @@ public class ExportDataToMongo {
 	 * @param tweets
 	 */
 	public void ExportUserTweetInformationID(Processing processing, long tweetid,
-			ArrayList<Long> tweets) {
+			ArrayList<Long> repostsid,ArrayList<Long> repoststime ) {
 
 		DB db = processing.getDB();
 		String CollectionName = processing.getTweetInformation();
@@ -363,11 +370,12 @@ public class ExportDataToMongo {
 			tweetinformationobject = new BasicDBObject("Tweet ID", tweetid);
 		}
 		
-		if (tweetinformationobject.getBoolean("Tweet")) {
+		if (tweetinformationobject.getBoolean("Reposts ID")) {
 			return;
 		}
 
-		tweetinformationobject.put("Tweet", tweets);
+		tweetinformationobject.append("Reposts ID", repostsid);
+		tweetinformationobject.append("Reposts Time", repoststime);
 		UserInformationCollection.update(query, tweetinformationobject);
 	}
 	

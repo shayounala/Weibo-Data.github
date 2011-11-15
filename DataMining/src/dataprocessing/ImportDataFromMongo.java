@@ -209,6 +209,9 @@ public class ImportDataFromMongo {
 		ArrayList<String> weibotoken = (ArrayList<String>) AccountInfoCollection.distinct("weiboToken");
 		ArrayList<String> weibosecrettoken = (ArrayList<String>) AccountInfoCollection.distinct("weiboTokenSecret");
 		
+		if(weiboaccount.size()==0){
+			return AccountInfo;
+		}
 		for(int i=0;i<weiboNumberMax;i++){
 			AccountInfo.add(weiboaccount.get(i));
 		}

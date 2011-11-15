@@ -110,19 +110,23 @@ public class SocialNetwork{
 				try {
 					
 					ArrayList<Long> followers = new ArrayList<Long>();
-					
-					RateLimitRemain = weibo.getRateLimitStatus().getRemainingHits();
+					System.out.println("before mining"+System.currentTimeMillis());
+					//RateLimitRemain = weibo.getRateLimitStatus().getRemainingHits();
+					System.out.println("get rate limit"+System.currentTimeMillis());
 					System.out.println("WeiboAccount: "+i);
 					if (RateLimitRemain > 0) {
 						followers = getfollowersIDByUserID(weibo,
 								String.valueOf(Mining.UniqueUserIDList.get(j)));
 					}
-					
+					System.out.println("just after mining"+System.currentTimeMillis());
 					Mining.NextFollowerID++;
 					Mining.exportdata.ExportNextUniqueIDFollowers(Mining.processing, Mining.NextFollowerID);
 					Mining.UniqueUserIDList.get(j).longValue();
+					System.out.println("just after export next id for followers"+System.currentTimeMillis());
 					Mining.exportdata.ExportUserFollowersID(Mining.processing, Mining.UniqueUserIDList.get(j).longValue(), followers);
+					System.out.println("just after export followers id"+System.currentTimeMillis());
 					Mining.UniqueUserIDList = Mining.exportdata.ExportUniqueUserIDs(Mining.processing, Mining.UniqueUserIDList, followers);
+					System.out.println("just after export unique users"+System.currentTimeMillis());
 				} catch (WeiboException e) {
 					// TODO Auto-generated catch block
 					System.out.println("RateLimitRemain: " + RateLimitRemain);
