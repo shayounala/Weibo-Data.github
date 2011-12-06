@@ -163,7 +163,7 @@ public class ExportDataToMongo {
 			System.out
 					.println("The format of Exported Next ID for Mining Tweets is wrong");
 		} else {
-			UserInformationCollection.findAndModify(new BasicDBObject(
+			UserInformationCollection.update(new BasicDBObject(
 					"Next ID for Mining Tweets", new BasicDBObject(
 							QueryOperators.EXISTS, true)), new BasicDBObject(
 					"Next ID for Mining Tweets", nextuniqueid));
@@ -273,23 +273,28 @@ public class ExportDataToMongo {
 			ArrayList<Long> TweetsID, ArrayList<Long> TweetsTime, ArrayList<Long> repostsID, ArrayList<Long> repostsUserID, ArrayList<Long> repostsTime) {
 
 		DB db = processing.getDB();
-		String CollectionName = processing.getUserInformation();
+		String CollectionName = processing.getTweetInformation();
 		DBCollection UserInformationCollection = db
 				.getCollection(CollectionName);
 
 		BasicDBObject query = new BasicDBObject("User ID", userid);
 		BasicDBObject userinformationobject = (BasicDBObject) UserInformationCollection
 				.findOne(query);
-		if (userinformationobject.getBoolean("Tweets ID")) {
-			return;
+		if (userinformationobject != null) {
+			System.out.println("Export: Number of tweets User IDs: "+UserInformationCollection.find(new BasicDBObject("Tweets ID", new BasicDBObject(QueryOperators.EXISTS,true))).count());
+			System.out.println("Read Tweet information from an user which is read before");
+			System.exit(0);
 		}
+		
+		userinformationobject = new BasicDBObject();
 
+		userinformationobject.append("User ID", userid);
 		userinformationobject.append("Tweets ID", TweetsID);
 		userinformationobject.append("Tweets Time", TweetsTime);
 		userinformationobject.append("Reposts ID", repostsID);
 		userinformationobject.append("Reposts User ID", repostsUserID);
 		userinformationobject.append("Reposts Time", repostsTime);
-		UserInformationCollection.update(query, userinformationobject);
+		UserInformationCollection.insert(userinformationobject);
 		
 		System.out.println("Export: Number of tweets User IDs: "+UserInformationCollection.find(new BasicDBObject("Tweets ID", new BasicDBObject(QueryOperators.EXISTS,true))).count());
 	}

@@ -94,10 +94,21 @@ public class Processing {
 		/*
 		 * initiate the initial values of next id for mining followers, friends, tweets and reposts
 		 */
+		System.out.println("Initiate the initial values of next id for mining followers, friends, tweets and reposts");
+		
 		BasicDBObject NextIDsObject = new BasicDBObject();
 		NextIDsObject.put("Next ID for Mining followers ID", 0);
+		NextIDsCollection.insert(NextIDsObject);
+		
+		NextIDsObject = new BasicDBObject();
 		NextIDsObject.put("Next ID for Mining friends ID", 0);
+		NextIDsCollection.insert(NextIDsObject);
+		
+		NextIDsObject = new BasicDBObject();
 		NextIDsObject.put("Next ID for Mining Tweets", 0);
+		NextIDsCollection.insert(NextIDsObject);
+		
+		NextIDsObject = new BasicDBObject();
 		NextIDsObject.put("Next Tweet ID for Mining Reposts", 0);
 		NextIDsCollection.insert(NextIDsObject);
 		

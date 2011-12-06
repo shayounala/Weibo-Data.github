@@ -110,6 +110,7 @@ public class ImportDataFromMongo {
 		if (NextUniqueIDsList.size() != 1) {
 			System.out
 					.println("The format of imported Next ID for Mining Tweets is wrong");
+			System.out.println(NextUniqueIDsList);
 		} else {
 			nextuniqueid = NextUniqueIDsList.get(0);
 		}

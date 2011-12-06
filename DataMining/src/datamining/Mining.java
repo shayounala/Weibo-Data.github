@@ -9,13 +9,14 @@ import com.mongodb.MongoException;
 import dataprocessing.ExportDataToMongo;
 import dataprocessing.ImportDataFromMongo;
 import dataprocessing.Processing;
+import weibo4j.RateLimitStatus;
 import weibo4j.Status;
 import weibo4j.Weibo;
 import weibo4j.WeiboException;
 
 public class Mining {
 
-	public static final int WeiboNumberMax = 4;
+	public static final int WeiboNumberMax = 5;
 	public static int NextFollowerID;
 	public static int NextFriendID;
 	public static int NextTweetID;
@@ -36,7 +37,7 @@ public class Mining {
 		// TODO Auto-generated method stub
 		
 		try {
-			processing = new Processing("mydb","AccountInformation1", "NextIDs", "UniqueUserIDs",
+			processing = new Processing("db","AccountInformation1", "NextIDs", "UniqueUserIDs",
 					"UserInformation", "UniqueTweetIDs", "TweetInformation");
 			processing.initiations();
 		} catch (UnknownHostException e) {
@@ -59,18 +60,40 @@ public class Mining {
 		//System.exit(0);
 		
 		
-		socialnetwork_Initiation(initiation);
-		//informationnetwork_Initiation(initiation);
+		//socialnetwork_Initiation(initiation);
+		informationnetwork_Initiation(initiation);
 
 	}
 
 	private static void informationnetwork_Initiation(
-			InitiationforWeibo initiation2) {
+			InitiationforWeibo initiation2){
 		// TODO Auto-generated method stub
 		informationnetwork = new InformationNetwork();
 		NextTweetID = importdata.importNextUniqueIDTweet(processing);
 		UniqueUserIDList = importdata.importUniqueUserIDs(processing);
-		informationnetwork.datamining_Tweets();
+		
+		for(int i=0;i<10;i++){
+			RateLimitStatus status = null;
+			try {
+				status = Mining.initiation.getWeibo(0).getRateLimitStatus();
+			} catch (WeiboException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			int lefthits = status.getRemainingHits();
+			int lefttime = status.getResetTimeInSeconds();
+			while(lefthits<=0){
+				try {
+					Thread.sleep(60000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				System.out.println("left hits: "+lefthits+"lefttime: "+lefttime);
+			}
+			System.out.println("left hits: "+lefthits+"lefttime: "+lefttime);
+			informationnetwork.datamining_Tweets();
+		}
 		
 	}
 
@@ -79,7 +102,7 @@ public class Mining {
 		socialnetwork = new SocialNetwork();
 		NextFollowerID = importdata.importNextUniqueIDFollowers(processing);
 		UniqueUserIDList = importdata.importUniqueUserIDs(processing);
-		socialnetwork.datamining_FollowersID();
+		//socialnetwork.datamining_FollowersID();
 	}
 	
 

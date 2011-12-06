@@ -34,18 +34,21 @@ public class NetworkAnalysis {
 			DBCollection  anonymouscollection = db.getCollection("AnonymousUserInformation");
 			DBCollection directedcollection = db.getCollection("DirectedUserInformation");
 			DBCollection directedanonymouscollection = db.getCollection("DirectedAnonymousUserInformation");
+			DBCollection  uniqueuseridscollection = db.getCollection("UniqueUserIDs");
+			DBCollection tweetinformationcollection = db.getCollection("TweetInformation");
 			
 			//FilterFollowers(regularcollection, regulatedcollection);
 			//RegulateInformation(regularcollection, regulatedcollection);
 			//anonymitythedata(regulatedcollection, anonymouscollection);
 			//directedanalysis(regulatedcollection,directedcollection);
 			//directedanonymousanalysis(anonymouscollection,directedanonymouscollection);
-			
+			//AbstractUniqueUserIDs(regulatedcollection,uniqueuseridscollection);
+			analysistweetinformation(tweetinformationcollection);
 			
 			
 			//transferDB(dbFiltered, db);
 				
-			calculateCE(directedanonymouscollection, "Undirected Followers IDs");
+			//calculateCE(directedanonymouscollection, "Undirected Followers IDs");
 			//followersanalysis(regulatedcollection, "Undirected Followers IDs");
 			//showcollection(anonymouscollection);
 			//comparecollection(regulatedcollection,anonymouscollection);
@@ -62,6 +65,57 @@ public class NetworkAnalysis {
 	}
 	
 	
+	private static void analysistweetinformation(
+			DBCollection tweetinformationcollection) {
+		// TODO Auto-generated method stub
+		DBCursor cursor = tweetinformationcollection.find();
+		cursor.setOptions(Bytes.QUERYOPTION_NOTIMEOUT);
+		System.out.println("Size of TweetInformation: "+cursor.count());
+		
+		for(int i=0;cursor.hasNext();i++){
+			BasicDBObject object = (BasicDBObject) cursor.next();
+			object.get("Tweets ID");
+			object.get("Reposts ID");
+		}
+		
+	}
+
+
+	private static void AbstractUniqueUserIDs(DBCollection regulatedcollection,
+			DBCollection uniqueuseridscollection) {
+		// TODO Auto-generated method stub
+		uniqueuseridscollection.drop();
+		
+		ArrayList<Long> users = getUsers(regulatedcollection);
+		ArrayList<Long> userids = new ArrayList<Long>();
+		
+		for(int i=0;i<users.size();i++){
+			userids.add(users.get(i));
+			if(i != users.size()-1){
+				if(i%1000 == 999 ){
+					BasicDBObject object = new BasicDBObject("User ID", userids);
+					uniqueuseridscollection.insert(object);
+					userids.clear();
+				}
+			}else{
+				BasicDBObject object = new BasicDBObject("User ID", userids);
+				uniqueuseridscollection.insert(object);
+				userids.clear();
+			}
+		}
+		
+		ArrayList<Long> UniqueUserIDsList = new ArrayList<Long>();
+		
+		DBCursor cursor = uniqueuseridscollection.find(new BasicDBObject("User ID",
+				new BasicDBObject(QueryOperators.EXISTS, true)));
+		for(int i=0;i<cursor.count();i++){
+			UniqueUserIDsList.addAll((Collection<? extends Long>) cursor.next().get("User ID"));
+		}
+
+		System.out.println("Number of Unique User IDs: "+UniqueUserIDsList.size());
+	}
+
+
 	@SuppressWarnings({ "unchecked" })
 	private static void comparecollection(DBCollection regulatedcollection,
 			DBCollection anonymouscollection) {
@@ -446,7 +500,7 @@ public class NetworkAnalysis {
 		// TODO Auto-generated method stub
 		
 		getUsers(collection);
-		//getFollowerkeys(collection, "Followers IDs");
+		getFollowerkeys(collection, "Followers IDs");
 		DBCursor cursor = collection.find(new BasicDBObject("Number", new BasicDBObject(QueryOperators.EXISTS, true)));
 		System.out.println("Size of "+collection.getName()+": "+cursor.count());
 		
