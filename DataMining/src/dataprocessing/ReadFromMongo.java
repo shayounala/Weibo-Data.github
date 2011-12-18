@@ -24,7 +24,7 @@ public class ReadFromMongo {
 	 * @throws MongoException 
 	 * @throws UnknownHostException 
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public static void main(String[] args) throws UnknownHostException, MongoException {
 		// TODO Auto-generated method stu
 		

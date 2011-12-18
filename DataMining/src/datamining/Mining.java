@@ -35,10 +35,11 @@ public class Mining {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		
+
 		try {
-			processing = new Processing("db","AccountInformation1", "NextIDs", "UniqueUserIDs",
-					"UserInformation", "UniqueTweetIDs", "TweetInformation");
+			processing = new Processing("db", "AccountInformation1", "NextIDs",
+					"UniqueUserIDs", "UserInformation", "UniqueTweetIDs",
+					"TweetInformation");
 			processing.initiations();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -47,32 +48,29 @@ public class Mining {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+
 		importdata = new ImportDataFromMongo();
 		exportdata = new ExportDataToMongo();
-		
+
 		initiation = new InitiationforWeibo(WeiboNumberMax);
 		initiation.initiations(processing);
-		
-		
-		//test();
-		//System.exit(0);
-		
-		
-		//socialnetwork_Initiation(initiation);
+
+		// test();
+		// System.exit(0);
+
+		// socialnetwork_Initiation(initiation);
 		informationnetwork_Initiation(initiation);
 
 	}
 
 	private static void informationnetwork_Initiation(
-			InitiationforWeibo initiation2){
+			InitiationforWeibo initiation2) {
 		// TODO Auto-generated method stub
 		informationnetwork = new InformationNetwork();
 		NextTweetID = importdata.importNextUniqueIDTweet(processing);
 		UniqueUserIDList = importdata.importUniqueUserIDs(processing);
-		
-		for(int i=0;i<10;i++){
+
+		for (int i = 0; i < 10; i++) {
 			RateLimitStatus status = null;
 			try {
 				status = Mining.initiation.getWeibo(0).getRateLimitStatus();
@@ -82,29 +80,31 @@ public class Mining {
 			}
 			int lefthits = status.getRemainingHits();
 			int lefttime = status.getResetTimeInSeconds();
-			while(lefthits<=0){
+			while (lefthits <= 0) {
 				try {
 					Thread.sleep(60000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				System.out.println("left hits: "+lefthits+"lefttime: "+lefttime);
+				System.out.println("left hits: " + lefthits + "lefttime: "
+						+ lefttime);
 			}
-			System.out.println("left hits: "+lefthits+"lefttime: "+lefttime);
+			System.out.println("left hits: " + lefthits + "lefttime: "
+					+ lefttime);
 			informationnetwork.datamining_Tweets();
 		}
-		
+
 	}
 
+	@SuppressWarnings("unused")
 	private static void socialnetwork_Initiation(InitiationforWeibo initiation) {
 		// TODO Auto-generated method stub
 		socialnetwork = new SocialNetwork();
 		NextFollowerID = importdata.importNextUniqueIDFollowers(processing);
 		UniqueUserIDList = importdata.importUniqueUserIDs(processing);
-		//socialnetwork.datamining_FollowersID();
+		// socialnetwork.datamining_FollowersID();
 	}
-	
 
 	public static void test() {
 		Weibo weibo = initiation.getWeibo(0);
@@ -119,8 +119,7 @@ public class Mining {
 			for (int i = 0; i < id.size(); i++) {
 				System.out.println((i + 1) + ": " + id.get(i).longValue());
 			}
-			
-			
+
 		} catch (WeiboException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -135,15 +134,16 @@ public class Mining {
 			System.out.println(statuses.size());
 			int statusesid = 1;
 			for (Status status : statuses) {
-				System.out.println(statusesid+"   "+status.getUser().getId() + ":"
-						+ status.getId() + ":"+status.getCreatedAt().getTime()+" : " 
+				System.out.println(statusesid + "   "
+						+ status.getUser().getId() + ":" + status.getId() + ":"
+						+ status.getCreatedAt().getTime() + " : "
 						+ status.getInReplyToUserId());
 				statusesid++;
 			}
-			
-			
-			//statuses = tweet.getRepostTimeline(weibo, Long.toString(statuses.get(0).getId()));
-			//System.out.println(statuses.get(0));
+
+			// statuses = tweet.getRepostTimeline(weibo,
+			// Long.toString(statuses.get(0).getId()));
+			// System.out.println(statuses.get(0));
 		} catch (WeiboException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

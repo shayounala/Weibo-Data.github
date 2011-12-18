@@ -25,7 +25,8 @@ public class Processing {
 		this.UniqueTweetIDs = UniqueTweetIDs;
 		this.TweetInformation = TweetInformation;
 		this.mongo = new Mongo("10.3.4.84", 27017);
-        System.out.println(mongo.getDB(dbname).authenticate("cssc", new char[]{'1'}));
+		System.out.println(mongo.getDB(dbname).authenticate("cssc",
+				new char[] { '1' }));
 
 	}
 
@@ -77,44 +78,45 @@ public class Processing {
 	public void initiations() {
 		// TODO Auto-generated method stub
 
-		//dropCollections();
+		// dropCollections();
 		DBCollection NextIDsCollection = getDB().getCollection(
 				this.getNextIDs());
-		
+
 		/*
-		 * If the initiation is ever executed,then return 
+		 * If the initiation is ever executed,then return
 		 */
 		if (null != NextIDsCollection.findOne(new BasicDBObject(
 				"Next ID for Mining followers ID", new BasicDBObject(
 						QueryOperators.EXISTS, true)))) {
 			return;
 		}
-		
-		
+
 		/*
-		 * initiate the initial values of next id for mining followers, friends, tweets and reposts
+		 * initiate the initial values of next id for mining followers, friends,
+		 * tweets and reposts
 		 */
-		System.out.println("Initiate the initial values of next id for mining followers, friends, tweets and reposts");
-		
+		System.out
+				.println("Initiate the initial values of next id for mining followers, friends, tweets and reposts");
+
 		BasicDBObject NextIDsObject = new BasicDBObject();
 		NextIDsObject.put("Next ID for Mining followers ID", 0);
 		NextIDsCollection.insert(NextIDsObject);
-		
+
 		NextIDsObject = new BasicDBObject();
 		NextIDsObject.put("Next ID for Mining friends ID", 0);
 		NextIDsCollection.insert(NextIDsObject);
-		
+
 		NextIDsObject = new BasicDBObject();
 		NextIDsObject.put("Next ID for Mining Tweets", 0);
 		NextIDsCollection.insert(NextIDsObject);
-		
+
 		NextIDsObject = new BasicDBObject();
 		NextIDsObject.put("Next Tweet ID for Mining Reposts", 0);
 		NextIDsCollection.insert(NextIDsObject);
-		
+
 		DBCollection UniqueUserIDsCollection = getDB().getCollection(
 				this.getUniqueUserIDs());
-		
+
 		/*
 		 * initiate the initial user for data mining
 		 */
@@ -127,16 +129,17 @@ public class Processing {
 
 	}
 
+	@SuppressWarnings("unused")
 	private void dropCollections() {
 		// TODO Auto-generated method stub
 		DBCollection NextIDsCollection = getDB().getCollection(
 				this.getNextIDs());
 		NextIDsCollection.drop();
-		
+
 		DBCollection UniqueUserIDsCollection = getDB().getCollection(
 				this.getUniqueUserIDs());
 		UniqueUserIDsCollection.drop();
-		
+
 		DBCollection UserInformationCollection = getDB().getCollection(
 				this.getUserInformation());
 		UserInformationCollection.drop();

@@ -18,6 +18,7 @@ public class NetworkAnalysis {
 	/**
 	 * @param args
 	 */
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		Mongo mongo;
@@ -27,32 +28,41 @@ public class NetworkAnalysis {
 			DB dbFiltered = mongo.getDB("weibodb");
 			mongo.getDB("db").authenticate("cssc", new char[] { '1' });
 			DB db = mongo.getDB("db");
-			DBCollection  collection = db.getCollection("UserInformation");
-			DBCollection  filtercollection = db.getCollection("FilterUserInformation");
-			DBCollection  regularcollection = db.getCollection("RegularUserInformation");
-			DBCollection  regulatedcollection = db.getCollection("RegulatedUserInformation");
-			DBCollection  anonymouscollection = db.getCollection("AnonymousUserInformation");
-			DBCollection directedcollection = db.getCollection("DirectedUserInformation");
-			DBCollection directedanonymouscollection = db.getCollection("DirectedAnonymousUserInformation");
-			DBCollection  uniqueuseridscollection = db.getCollection("UniqueUserIDs");
-			DBCollection tweetinformationcollection = db.getCollection("TweetInformation");
-			
-			//FilterFollowers(regularcollection, regulatedcollection);
-			//RegulateInformation(regularcollection, regulatedcollection);
-			//anonymitythedata(regulatedcollection, anonymouscollection);
-			//directedanalysis(regulatedcollection,directedcollection);
-			//directedanonymousanalysis(anonymouscollection,directedanonymouscollection);
-			//AbstractUniqueUserIDs(regulatedcollection,uniqueuseridscollection);
+			DBCollection collection = db.getCollection("UserInformation");
+			DBCollection filtercollection = db
+					.getCollection("FilterUserInformation");
+			DBCollection regularcollection = db
+					.getCollection("RegularUserInformation");
+			DBCollection regulatedcollection = db
+					.getCollection("RegulatedUserInformation");
+			DBCollection anonymouscollection = db
+					.getCollection("AnonymousUserInformation");
+			DBCollection directedcollection = db
+					.getCollection("DirectedUserInformation");
+			DBCollection directedanonymouscollection = db
+					.getCollection("DirectedAnonymousUserInformation");
+			DBCollection uniqueuseridscollection = db
+					.getCollection("UniqueUserIDs");
+			DBCollection tweetinformationcollection = db
+					.getCollection("TweetInformation");
+
+			// FilterFollowers(regularcollection, regulatedcollection);
+			// RegulateInformation(regularcollection, regulatedcollection);
+			// anonymitythedata(regulatedcollection, anonymouscollection);
+			// directedanalysis(regulatedcollection,directedcollection);
+			// directedanonymousanalysis(anonymouscollection,directedanonymouscollection);
+			// AbstractUniqueUserIDs(regulatedcollection,uniqueuseridscollection);
 			analysistweetinformation(tweetinformationcollection);
-			
-			
-			//transferDB(dbFiltered, db);
-				
-			//calculateCE(directedanonymouscollection, "Undirected Followers IDs");
-			//followersanalysis(regulatedcollection, "Undirected Followers IDs");
-			//showcollection(anonymouscollection);
-			//comparecollection(regulatedcollection,anonymouscollection);
-			
+
+			// transferDB(dbFiltered, db);
+
+			// calculateCE(directedanonymouscollection,
+			// "Undirected Followers IDs");
+			// followersanalysis(regulatedcollection,
+			// "Undirected Followers IDs");
+			// showcollection(anonymouscollection);
+			// comparecollection(regulatedcollection,anonymouscollection);
+
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -60,182 +70,207 @@ public class NetworkAnalysis {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 
 	}
-	
-	
+
 	@SuppressWarnings("unchecked")
 	private static void analysistweetinformation(
 			DBCollection tweetinformationcollection) {
 		// TODO Auto-generated method stub
 		DBCursor cursor = tweetinformationcollection.find();
 		cursor.setOptions(Bytes.QUERYOPTION_NOTIMEOUT);
-		//System.out.println("Size of TweetInformation: "+cursor.count());
-		
+		// System.out.println("Size of TweetInformation: "+cursor.count());
+
 		long timeinterval = 0;
 		long millisecondsforday = 86400000;
-		int [] tweetsnumber = new int[cursor.count()];
-		int [] repostsnumber = new int[cursor.count()];
-		double [] tweetsfre = new double[cursor.count()];
-		double [] repostsfre = new double[cursor.count()];
-		int [] tweetsorder = new int[201];
-		int [] repostsorder = new int[201];
-		int [] tweetsfreorder = new int[201];
-		int [] repostsfreorder = new int[201];
-		
-		//System.out.println("Start reading a user's tweet at: "+System.currentTimeMillis());
-		for(int i=0;cursor.hasNext();i++){
-			
+		int[] tweetsnumber = new int[cursor.count()];
+		int[] repostsnumber = new int[cursor.count()];
+		double[] tweetsfre = new double[cursor.count()];
+		double[] repostsfre = new double[cursor.count()];
+		int[] tweetsorder = new int[201];
+		int[] repostsorder = new int[201];
+		int[] tweetsfreorder = new int[201];
+		int[] repostsfreorder = new int[201];
+
+		// System.out.println("Start reading a user's tweet at: "+System.currentTimeMillis());
+		for (int i = 0; cursor.hasNext(); i++) {
+
 			BasicDBObject object = (BasicDBObject) cursor.next();
-			
-			ArrayList<Long> tweetsid = (ArrayList<Long>) object.get("Tweets ID");
-			ArrayList<Long> tweetstime = (ArrayList<Long>) object.get("Tweets Time");
-			if(tweetstime.size() != 0){
-				timeinterval = tweetstime.get(0)-tweetstime.get(tweetstime.size()-1);
-				if(timeinterval == 0){
-					timeinterval = System.currentTimeMillis()-tweetstime.get(0);
+
+			ArrayList<Long> tweetsid = (ArrayList<Long>) object
+					.get("Tweets ID");
+			ArrayList<Long> tweetstime = (ArrayList<Long>) object
+					.get("Tweets Time");
+			if (tweetstime.size() != 0) {
+				timeinterval = tweetstime.get(0)
+						- tweetstime.get(tweetstime.size() - 1);
+				if (timeinterval == 0) {
+					timeinterval = System.currentTimeMillis()
+							- tweetstime.get(0);
 				}
-				tweetsfre[i] = ((double)tweetsid.size()*millisecondsforday)/timeinterval;
-			}else{
+				tweetsfre[i] = ((double) tweetsid.size() * millisecondsforday)
+						/ timeinterval;
+			} else {
 				tweetsfre[i] = 0;
 			}
 			tweetsnumber[i] = tweetsid.size();
-			tweetsorder[tweetsid.size()] +=1;
-			int temp = (int) (tweetsfre[i]*20);
-			if(temp>200){
+			tweetsorder[tweetsid.size()] += 1;
+			int temp = (int) (tweetsfre[i] * 20);
+			if (temp > 200) {
 				temp = 200;
 			}
-			tweetsfreorder[temp] +=1;
-			
-			ArrayList<Long> repostsid = (ArrayList<Long>) object.get("Reposts ID");
-			ArrayList<Long> repoststime = (ArrayList<Long>) object.get("Reposts Time");
-			if(repoststime.size() != 0){
-				timeinterval = repoststime.get(0)-repoststime.get(repoststime.size()-1);
-				if(timeinterval == 0){
-					timeinterval = System.currentTimeMillis()-repoststime.get(0);
+			tweetsfreorder[temp] += 1;
+
+			ArrayList<Long> repostsid = (ArrayList<Long>) object
+					.get("Reposts ID");
+			ArrayList<Long> repoststime = (ArrayList<Long>) object
+					.get("Reposts Time");
+			if (repoststime.size() != 0) {
+				timeinterval = repoststime.get(0)
+						- repoststime.get(repoststime.size() - 1);
+				if (timeinterval == 0) {
+					timeinterval = System.currentTimeMillis()
+							- repoststime.get(0);
 				}
-				repostsfre[i] = ((double)repostsid.size()*millisecondsforday)/timeinterval;
-			}else{
+				repostsfre[i] = ((double) repostsid.size() * millisecondsforday)
+						/ timeinterval;
+			} else {
 				repostsfre[i] = 0;
 			}
 			repostsnumber[i] = repostsid.size();
-			repostsorder[repostsid.size()] +=1;
-			temp = (int) (repostsfre[i]*20);
-			if(temp>200){
+			repostsorder[repostsid.size()] += 1;
+			temp = (int) (repostsfre[i] * 20);
+			if (temp > 200) {
 				temp = 200;
 			}
-			repostsfreorder[temp] +=1;
-			
-			
-			//System.out.println(i+"	"+repostsfre[i]+"	"+tweetsfre[i]);
-			
-			//System.out.println("User: "+i+" Size of Tweets ID: "+tweetsid.size()+" Size of Reposts ID: "+repostsid.size());
+			repostsfreorder[temp] += 1;
+
+			// System.out.println(i+"	"+repostsfre[i]+"	"+tweetsfre[i]);
+
+			// System.out.println("User: "+i+" Size of Tweets ID: "+tweetsid.size()+" Size of Reposts ID: "+repostsid.size());
 		}
-		//System.out.println("Finish reading a user's tweet at: "+System.currentTimeMillis());
-		
-		for(int i=0;i<tweetsorder.length;i++){
-			System.out.println(i+"	"+tweetsfreorder[i]+"	"+repostsfreorder[i]);
+		// System.out.println("Finish reading a user's tweet at: "+System.currentTimeMillis());
+
+		for (int i = 0; i < tweetsorder.length; i++) {
+			System.out.println(i + "	" + tweetsfreorder[i] + "	"
+					+ repostsfreorder[i]);
 		}
 	}
 
-
+	@SuppressWarnings({ "unused", "unchecked" })
 	private static void AbstractUniqueUserIDs(DBCollection regulatedcollection,
 			DBCollection uniqueuseridscollection) {
 		// TODO Auto-generated method stub
 		uniqueuseridscollection.drop();
-		
+
 		ArrayList<Long> users = getUsers(regulatedcollection);
 		ArrayList<Long> userids = new ArrayList<Long>();
-		
-		for(int i=0;i<users.size();i++){
+
+		for (int i = 0; i < users.size(); i++) {
 			userids.add(users.get(i));
-			if(i != users.size()-1){
-				if(i%1000 == 999 ){
+			if (i != users.size() - 1) {
+				if (i % 1000 == 999) {
 					BasicDBObject object = new BasicDBObject("User ID", userids);
 					uniqueuseridscollection.insert(object);
 					userids.clear();
 				}
-			}else{
+			} else {
 				BasicDBObject object = new BasicDBObject("User ID", userids);
 				uniqueuseridscollection.insert(object);
 				userids.clear();
 			}
 		}
-		
+
 		ArrayList<Long> UniqueUserIDsList = new ArrayList<Long>();
-		
-		DBCursor cursor = uniqueuseridscollection.find(new BasicDBObject("User ID",
-				new BasicDBObject(QueryOperators.EXISTS, true)));
-		for(int i=0;i<cursor.count();i++){
-			UniqueUserIDsList.addAll((Collection<? extends Long>) cursor.next().get("User ID"));
+
+		DBCursor cursor = uniqueuseridscollection.find(new BasicDBObject(
+				"User ID", new BasicDBObject(QueryOperators.EXISTS, true)));
+		for (int i = 0; i < cursor.count(); i++) {
+			UniqueUserIDsList.addAll((Collection<? extends Long>) cursor.next()
+					.get("User ID"));
 		}
 
-		System.out.println("Number of Unique User IDs: "+UniqueUserIDsList.size());
+		System.out.println("Number of Unique User IDs: "
+				+ UniqueUserIDsList.size());
 	}
 
-
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings({ "unchecked", "unused" })
 	private static void comparecollection(DBCollection regulatedcollection,
 			DBCollection anonymouscollection) {
 		// TODO Auto-generated method stub
 		DBCursor regulatedcursor = regulatedcollection.find();
 		DBCursor anonymouscursor = anonymouscollection.find();
-		System.out.println(regulatedcollection.getFullName()+": "+regulatedcursor.count());
-		System.out.println(anonymouscollection.getFullName()+": "+anonymouscursor.count());
-		
-		//regulatedcursor.sort(new BasicDBObject("Number", new BasicDBObject(QueryOperators.EXISTS, true)));
-		//anonymouscursor.sort(new BasicDBObject("Number", new BasicDBObject(QueryOperators.EXISTS, true)));
+		System.out.println(regulatedcollection.getFullName() + ": "
+				+ regulatedcursor.count());
+		System.out.println(anonymouscollection.getFullName() + ": "
+				+ anonymouscursor.count());
 
-		
-		for(int i=0; regulatedcursor.hasNext();i++){
+		// regulatedcursor.sort(new BasicDBObject("Number", new
+		// BasicDBObject(QueryOperators.EXISTS, true)));
+		// anonymouscursor.sort(new BasicDBObject("Number", new
+		// BasicDBObject(QueryOperators.EXISTS, true)));
+
+		for (int i = 0; regulatedcursor.hasNext(); i++) {
 			BasicDBObject object1 = (BasicDBObject) regulatedcursor.next();
 			BasicDBObject object2 = (BasicDBObject) anonymouscursor.next();
-			
+
 			int number1 = (Integer) object1.get("Number");
 			int number2 = (Integer) object2.get("Number");
-			
-			ArrayList<Long> followers1 = (ArrayList<Long>) object1.get("Followers IDs");
-			ArrayList<Integer> followers2 = (ArrayList<Integer>) object2.get("Followers IDs");
-			
+
+			ArrayList<Long> followers1 = (ArrayList<Long>) object1
+					.get("Followers IDs");
+			ArrayList<Integer> followers2 = (ArrayList<Integer>) object2
+					.get("Followers IDs");
+
 			ArrayList<Long> users1 = (ArrayList<Long>) object1.get("User IDs");
-			ArrayList<Integer> users2 = (ArrayList<Integer>) object2.get("User IDs");
-			
-			if(number1 != number2){
-				System.out.println("Something is wrong in the process of anonymity"+"number");
+			ArrayList<Integer> users2 = (ArrayList<Integer>) object2
+					.get("User IDs");
+
+			if (number1 != number2) {
+				System.out
+						.println("Something is wrong in the process of anonymity"
+								+ "number");
 				System.out.println(i);
-				System.out.println("number1.: "+number1+"  "+"number2: "+number2);
-				System.out.println("users2.start: "+users2.get(0)+"  "+"users2.end "+users2.get(users2.size()-1));
+				System.out.println("number1.: " + number1 + "  " + "number2: "
+						+ number2);
+				System.out.println("users2.start: " + users2.get(0) + "  "
+						+ "users2.end " + users2.get(users2.size() - 1));
 			}
-			
-			if(followers1.size() != followers2.size()){
-				System.out.println("Something is wrong in the process of anonymity"+"followers");
+
+			if (followers1.size() != followers2.size()) {
+				System.out
+						.println("Something is wrong in the process of anonymity"
+								+ "followers");
 				System.out.println(i);
-				System.out.println("followers1.: "+followers1.size()+"  "+"followers2: "+followers2.size());
+				System.out.println("followers1.: " + followers1.size() + "  "
+						+ "followers2: " + followers2.size());
 			}
-			
-			if(users1.size() != users2.size()){
-				System.out.println("Something is wrong in the process of anonymity"+"users");
+
+			if (users1.size() != users2.size()) {
+				System.out
+						.println("Something is wrong in the process of anonymity"
+								+ "users");
 				System.out.println(i);
-				System.out.println("users1.: "+users1.size()+"  "+"users2: "+users2.size());
+				System.out.println("users1.: " + users1.size() + "  "
+						+ "users2: " + users2.size());
 			}
-			
-			//System.out.println("number1.: "+number1+"  "+"number2: "+number2);
-			//System.out.println("followers1.: "+followers1.size()+"  "+"followers2: "+followers2.size());
+
+			// System.out.println("number1.: "+number1+"  "+"number2: "+number2);
+			// System.out.println("followers1.: "+followers1.size()+"  "+"followers2: "+followers2.size());
 		}
 	}
 
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes", "unchecked", "unused" })
 	private static void directedanonymousanalysis(
 			DBCollection anonymouscollection, DBCollection directedcollection) {
 		// TODO Auto-generated method stub
 		directedcollection.drop();
-		
+
 		ArrayList<Integer> users = getUserkeys(anonymouscollection);
 
-		ArrayList<ArrayList> followers = getFollowerkeys(anonymouscollection, "Followers IDs");
-		
+		ArrayList<ArrayList> followers = getFollowerkeys(anonymouscollection,
+				"Followers IDs");
+
 		ArrayList<ArrayList> totalfollowers = new ArrayList<ArrayList>();
 		ArrayList<ArrayList> directedfollowers = new ArrayList<ArrayList>();
 		ArrayList<ArrayList> undirectedfollowers = new ArrayList<ArrayList>();
@@ -243,26 +278,26 @@ public class NetworkAnalysis {
 		ArrayList<Integer> total = new ArrayList<Integer>();
 		ArrayList<Integer> directed = new ArrayList<Integer>();
 		ArrayList<Integer> undirected = new ArrayList<Integer>();
-		int totalnumber = 0,directednumber = 0,undirectednumber = 0, uselessnumber = 0;
-		for(int i=0;i<followers.size();i++){
-			System.out.println("User number: "+i);
+		int totalnumber = 0, directednumber = 0, undirectednumber = 0, uselessnumber = 0;
+		for (int i = 0; i < followers.size(); i++) {
+			System.out.println("User number: " + i);
 			temp = followers.get(i);
-			for(int j=0;j<temp.size();j++){
+			for (int j = 0; j < temp.size(); j++) {
 				int id = temp.get(j);
-				
-				if(id == -1){
+
+				if (id == -1) {
 					uselessnumber++;
-				}else{
+				} else {
 					total.add(id);
-					if(followers.get(id).contains(i)){
+					if (followers.get(id).contains(i)) {
 						undirected.add(id);
-					}else{
+					} else {
 						directed.add(id);
 					}
 				}
-				
+
 			}
-			
+
 			totalfollowers.add((ArrayList) total.clone());
 			directedfollowers.add((ArrayList) directed.clone());
 			undirectedfollowers.add((ArrayList) undirected.clone());
@@ -275,19 +310,19 @@ public class NetworkAnalysis {
 			directed.clear();
 			undirected.clear();
 		}
-		
-		System.out.println("totalnumber: "+totalnumber);
-		System.out.println("directednumber: "+directednumber);
-		System.out.println("undirectednumber: "+undirectednumber);
-		System.out.println("uselessnumber: "+uselessnumber);
-		
-		ArrayList<Integer> user = new ArrayList<Integer> ();
+
+		System.out.println("totalnumber: " + totalnumber);
+		System.out.println("directednumber: " + directednumber);
+		System.out.println("undirectednumber: " + undirectednumber);
+		System.out.println("uselessnumber: " + uselessnumber);
+
+		ArrayList<Integer> user = new ArrayList<Integer>();
 		ArrayList<Integer> totalregularfollowers = new ArrayList<Integer>();
 		ArrayList<Integer> directedregularfollowers = new ArrayList<Integer>();
 		ArrayList<Integer> undirectedregularfollowers = new ArrayList<Integer>();
-		for(int i=0;i<totalfollowers.size();i++){
-			
-			//System.out.println("User number: "+i);
+		for (int i = 0; i < totalfollowers.size(); i++) {
+
+			// System.out.println("User number: "+i);
 			user.add(i);
 			totalregularfollowers.addAll(totalfollowers.get(i));
 			totalregularfollowers.add(-1);
@@ -295,80 +330,82 @@ public class NetworkAnalysis {
 			directedregularfollowers.add(-1);
 			undirectedregularfollowers.addAll(undirectedfollowers.get(i));
 			undirectedregularfollowers.add(-1);
-			
-			
-			if(i%100 == 99 || i == totalfollowers.size()-1){
 
-				System.out.println("Number: "+directedcollection.count());
+			if (i % 100 == 99 || i == totalfollowers.size() - 1) {
+
+				System.out.println("Number: " + directedcollection.count());
 				BasicDBObject totalobject = new BasicDBObject();
-				totalobject.append("Number", directedcollection.count()+1);
+				totalobject.append("Number", directedcollection.count() + 1);
 				totalobject.append("User IDs", user);
-				
-				totalobject.append("Total Followers IDs", totalregularfollowers);
-				totalobject.append("Directed Followers IDs", directedregularfollowers);
-				totalobject.append("Undirected Followers IDs", undirectedregularfollowers);
-				
-				
+
+				totalobject
+						.append("Total Followers IDs", totalregularfollowers);
+				totalobject.append("Directed Followers IDs",
+						directedregularfollowers);
+				totalobject.append("Undirected Followers IDs",
+						undirectedregularfollowers);
+
 				directedcollection.insert(totalobject);
-				
+
 				user.clear();
 				totalregularfollowers.clear();
 				directedregularfollowers.clear();
 				undirectedregularfollowers.clear();
-				
+
 			}
-			
-			
+
 		}
 	}
 
-
-
-	@SuppressWarnings("unchecked")
-	private static void FilterFollowers(DBCollection collection, DBCollection collection1) {
+	@SuppressWarnings({ "unchecked", "unused" })
+	private static void FilterFollowers(DBCollection collection,
+			DBCollection collection1) {
 		// TODO Auto-generated method stub
 		collection1.drop();
-		
-		DBCursor cursor = collection.find(new BasicDBObject("Followers IDs", new BasicDBObject(QueryOperators.EXISTS, true)));
+
+		DBCursor cursor = collection.find(new BasicDBObject("Followers IDs",
+				new BasicDBObject(QueryOperators.EXISTS, true)));
 		cursor.setOptions(Bytes.QUERYOPTION_NOTIMEOUT);
-		
+
 		ArrayList<Long> UniqueUsers = new ArrayList<Long>();
-		for(int i=0;i<cursor.count();i++){
-			ArrayList<Long> UniqueUser = (ArrayList<Long>) cursor.next().get("User IDs");
+		for (int i = 0; i < cursor.count(); i++) {
+			ArrayList<Long> UniqueUser = (ArrayList<Long>) cursor.next().get(
+					"User IDs");
 			UniqueUsers.addAll(UniqueUser);
 
 		}
 		System.out.println(cursor.count());
-		cursor = collection.find(new BasicDBObject("Followers IDs", new BasicDBObject(QueryOperators.EXISTS, true)));
+		cursor = collection.find(new BasicDBObject("Followers IDs",
+				new BasicDBObject(QueryOperators.EXISTS, true)));
 		ArrayList<Long> followers = new ArrayList<Long>();
 		ArrayList<Long> users = new ArrayList<Long>();
-		for(int i=0;i<cursor.count();i++){
+		for (int i = 0; i < cursor.count(); i++) {
 			BasicDBObject object = (BasicDBObject) cursor.next();
-			users =(ArrayList<Long>) object.get("User IDs");
-			followers =(ArrayList<Long>) object.get("Followers IDs");
-			for(int j=0;j<followers.size();j++){
+			users = (ArrayList<Long>) object.get("User IDs");
+			followers = (ArrayList<Long>) object.get("Followers IDs");
+			for (int j = 0; j < followers.size(); j++) {
 				long followerid = followers.get(j).longValue();
 				boolean contain = false;
-				
-				if(followerid != -1L){
-					for(int k=0;k<UniqueUsers.size();k++){
-						if(followerid == UniqueUsers.get(k)){
-							contain =true;
+
+				if (followerid != -1L) {
+					for (int k = 0; k < UniqueUsers.size(); k++) {
+						if (followerid == UniqueUsers.get(k)) {
+							contain = true;
 							break;
 						}
 					}
-				}else{
+				} else {
 					contain = true;
 				}
-				
-				if(!contain){
+
+				if (!contain) {
 					followers.remove(followerid);
 					j--;
 				}
 			}
-			
+
 			BasicDBObject information = new BasicDBObject();
-			information.append("Number", i+1);
+			information.append("Number", i + 1);
 			information.append("User IDs", users);
 			information.append("Followers IDs", followers);
 
@@ -376,228 +413,244 @@ public class NetworkAnalysis {
 			object.clear();
 			users.clear();
 			followers.clear();
-			System.out.println("Iretator of Filter Followers: "+i);
+			System.out.println("Iretator of Filter Followers: " + i);
 		}
-		
+
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	private static void anonymitythedata(DBCollection regularcollection,
 			DBCollection anonymouscollection) {
 		// TODO Auto-generated method stub
 		anonymouscollection.drop();
-		
+
 		ArrayList<Long> users = getUsers(regularcollection);
-		
+
 		DBCursor cursor = regularcollection.find();
-		
-		for(int i=0;cursor.hasNext();i++){
-			
-			System.out.println("Curosr: "+i);
-			
+
+		for (int i = 0; cursor.hasNext(); i++) {
+
+			System.out.println("Curosr: " + i);
+
 			BasicDBObject object = (BasicDBObject) cursor.next();
-			
+
 			BasicDBObject newobject = new BasicDBObject();
-			
+
 			int number = (Integer) object.get("Number");
 			ArrayList<Long> user = (ArrayList<Long>) object.get("User IDs");
-			ArrayList<Long> follower = (ArrayList<Long>) object.get("Followers IDs");
-			
+			ArrayList<Long> follower = (ArrayList<Long>) object
+					.get("Followers IDs");
+
 			ArrayList<Integer> newfollower = new ArrayList<Integer>();
 			ArrayList<Integer> newuser = new ArrayList<Integer>();
-			
-			for(int j=0;j<user.size();j++){
+
+			for (int j = 0; j < user.size(); j++) {
 				newuser.add(users.indexOf(user.get(j)));
 			}
-			for(int j=0;j<follower.size();j++){
-				if(follower.get(j)!= -1){
-					if(users.indexOf(follower.get(j)) == -1){
+			for (int j = 0; j < follower.size(); j++) {
+				if (follower.get(j) != -1) {
+					if (users.indexOf(follower.get(j)) == -1) {
 						System.exit(0);
 					}
 					newfollower.add(users.indexOf(follower.get(j)));
-				}else{
+				} else {
 					newfollower.add(-1);
 				}
 			}
 
-			
 			newobject.append("Number", number);
 			newobject.append("User IDs", newuser);
 			newobject.append("Followers IDs", newfollower);
-			
-			if(follower.size() != newfollower.size()){
-				System.out.println("Number: "+number+" follower: "+follower.size()+" newnumber: "+i+" newfollower: "+newfollower.size());
+
+			if (follower.size() != newfollower.size()) {
+				System.out.println("Number: " + number + " follower: "
+						+ follower.size() + " newnumber: " + i
+						+ " newfollower: " + newfollower.size());
 				System.exit(0);
 			}
-			
+
 			anonymouscollection.insert(newobject);
 		}
-		
+
 		System.out.println("Make the user data anonymous");
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes", "unchecked", "unused" })
 	private static double calculateCE(DBCollection directedcollection,
 			String string) {
 		// TODO Auto-generated method stub
 		ArrayList<Integer> users = getUserkeys(directedcollection);
-		ArrayList<ArrayList> followers = getFollowerkeys(directedcollection, string);
-		
-		if(string == "Directed Followers IDs"){
-			
-			System.out.println("Transferring directed network to undirected network");
-			
-			for(int i=0;i<followers.size();i++){
+		ArrayList<ArrayList> followers = getFollowerkeys(directedcollection,
+				string);
+
+		if (string == "Directed Followers IDs") {
+
+			System.out
+					.println("Transferring directed network to undirected network");
+
+			for (int i = 0; i < followers.size(); i++) {
 				int user = users.get(i);
 				ArrayList<Integer> followerids = followers.get(i);
-				
-				for(int j=0;j<followerids.size();j++){
+
+				for (int j = 0; j < followerids.size(); j++) {
 					ArrayList<Integer> temp = followers.get(followerids.get(j));
-					if(!temp.contains(user)){
+					if (!temp.contains(user)) {
 						temp.add(user);
 					}
 				}
 			}
-			
-			
-			int randomint = Long.bitCount(System.currentTimeMillis())%followers.size();
-			
-			while(followers.get(randomint).size() == 0){
-				randomint = (randomint+1)%followers.size();
+
+			int randomint = Long.bitCount(System.currentTimeMillis())
+					% followers.size();
+
+			while (followers.get(randomint).size() == 0) {
+				randomint = (randomint + 1) % followers.size();
 			}
-			
-			ArrayList<Integer> temp = followers.get(users.indexOf(followers.get(randomint).get(0)));
+
+			ArrayList<Integer> temp = followers.get(users.indexOf(followers
+					.get(randomint).get(0)));
 			int tempuser = users.get(randomint);
-			if(!temp.contains(tempuser)){
-				System.out.println("Exception in transferring directed network to undirected network");
+			if (!temp.contains(tempuser)) {
+				System.out
+						.println("Exception in transferring directed network to undirected network");
 				System.exit(0);
 			}
 		}
-		
-		//System.exit(0);
+
+		// System.exit(0);
 		return calculateCE(users, followers);
-		
+
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static double calculateCE(ArrayList<Integer> users,
 			ArrayList<ArrayList> followers) {
 		// TODO Auto-generated method stub
-		
-		System.out.println("Calculate the clustering efficiency of undirected network");
-		
-		
+
+		System.out
+				.println("Calculate the clustering efficiency of undirected network");
+
 		double totaltriplets = 0, closedtriplets = 0;
 		int totalfollowers = 0;
-		
-		for(int i = 0; i<followers.size(); i++){
-			
+
+		for (int i = 0; i < followers.size(); i++) {
+
 			ArrayList<Integer> followerids = followers.get(i);
 			totalfollowers += followerids.size();
-			
-			System.out.println("User: "+i+" followerids: "+followerids.size());			
-			
-			for(int j=0; j<followerids.size();j++){
-				for(int k=j;k<followerids.size();k++){
-					if(k!=j){
-						ArrayList<Integer> temp = followers.get(followerids.get(j));
-						if(temp.contains(followerids.get(k))){
+
+			System.out.println("User: " + i + " followerids: "
+					+ followerids.size());
+
+			for (int j = 0; j < followerids.size(); j++) {
+				for (int k = j; k < followerids.size(); k++) {
+					if (k != j) {
+						ArrayList<Integer> temp = followers.get(followerids
+								.get(j));
+						if (temp.contains(followerids.get(k))) {
 							totaltriplets++;
 							closedtriplets++;
-						}else{
+						} else {
 							totaltriplets += 3;
 						}
 					}
 				}
 			}
 		}
-		
-		double CE = closedtriplets/totaltriplets;
-		
-		System.out.println("The clustering effiency of the network is: "+CE);
-		System.out.println("Total Followers: "+totalfollowers+" Total Triplets: "+totaltriplets+" Closed Triplets: "+closedtriplets);
-		
+
+		double CE = closedtriplets / totaltriplets;
+
+		System.out.println("The clustering effiency of the network is: " + CE);
+		System.out.println("Total Followers: " + totalfollowers
+				+ " Total Triplets: " + totaltriplets + " Closed Triplets: "
+				+ closedtriplets);
+
 		return CE;
 	}
 
-
-
+	@SuppressWarnings("unused")
 	private static void transferDB(DB dbFiltered, DB db) {
 		// TODO Auto-generated method stub
 		db.dropDatabase();
-		DBCollection  collection = dbFiltered.getCollection("UserInformation");
-		DBCollection  filtercollection = dbFiltered.getCollection("FilterUserInformation");
-		DBCollection  regularcollection = dbFiltered.getCollection("RegularUserInformation");
-		
-		DBCollection  collection1 = db.getCollection("UserInformation");
-		DBCollection  filtercollection1 = db.getCollection("FilterUserInformation");
-		DBCollection  regularcollection1 = db.getCollection("RegularUserInformation");
-		
+		DBCollection collection = dbFiltered.getCollection("UserInformation");
+		DBCollection filtercollection = dbFiltered
+				.getCollection("FilterUserInformation");
+		DBCollection regularcollection = dbFiltered
+				.getCollection("RegularUserInformation");
+
+		DBCollection collection1 = db.getCollection("UserInformation");
+		DBCollection filtercollection1 = db
+				.getCollection("FilterUserInformation");
+		DBCollection regularcollection1 = db
+				.getCollection("RegularUserInformation");
+
 		DBCursor cursor = collection.find();
-		while(cursor.hasNext()){
+		while (cursor.hasNext()) {
 			BasicDBObject object = (BasicDBObject) cursor.next();
 			collection1.insert(object);
 		}
-		
+
 		cursor = filtercollection.find();
-		while(cursor.hasNext()){
+		while (cursor.hasNext()) {
 			BasicDBObject object = (BasicDBObject) cursor.next();
 			filtercollection1.insert(object);
 		}
-		
+
 		cursor = regularcollection.find();
-		while(cursor.hasNext()){
+		while (cursor.hasNext()) {
 			BasicDBObject object = (BasicDBObject) cursor.next();
 			regularcollection1.insert(object);
 		}
-		
-		
+
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	private static void showcollection(DBCollection collection) {
 		// TODO Auto-generated method stub
-		
+
 		getUsers(collection);
 		getFollowerkeys(collection, "Followers IDs");
-		DBCursor cursor = collection.find(new BasicDBObject("Number", new BasicDBObject(QueryOperators.EXISTS, true)));
-		System.out.println("Size of "+collection.getName()+": "+cursor.count());
-		
+		DBCursor cursor = collection.find(new BasicDBObject("Number",
+				new BasicDBObject(QueryOperators.EXISTS, true)));
+		System.out.println("Size of " + collection.getName() + ": "
+				+ cursor.count());
+
 		int totalnumber = 0, directednumber = 0, undirectednumber = 0;
-		for(int i=0;cursor.hasNext();i++){
-			
+		for (int i = 0; cursor.hasNext(); i++) {
+
 			BasicDBObject object = (BasicDBObject) cursor.next();
-			System.out.println("User Number: "+object.get("Number"));
-			
-			ArrayList<Long> totalfollowers = (ArrayList<Long>) object.get("Total Followers IDs");
-			ArrayList<Long> directedfollowers = (ArrayList<Long>) object.get("Directed Followers IDs");
-			ArrayList<Long> undirectedfollowers = (ArrayList<Long>) object.get("Undirected Followers IDs");
-			
-			totalnumber +=totalfollowers.size();
+			System.out.println("User Number: " + object.get("Number"));
+
+			ArrayList<Long> totalfollowers = (ArrayList<Long>) object
+					.get("Total Followers IDs");
+			ArrayList<Long> directedfollowers = (ArrayList<Long>) object
+					.get("Directed Followers IDs");
+			ArrayList<Long> undirectedfollowers = (ArrayList<Long>) object
+					.get("Undirected Followers IDs");
+
+			totalnumber += totalfollowers.size();
 			directednumber += directedfollowers.size();
 			undirectednumber += undirectedfollowers.size();
-				
+
 		}
-		
-		System.out.println("Size of total followers: "+totalnumber);
-		System.out.println("Size of directed followers: "+directednumber);
-		System.out.println("Size of undirected followers: "+undirectednumber);
-		
-		//collection.drop();
+
+		System.out.println("Size of total followers: " + totalnumber);
+		System.out.println("Size of directed followers: " + directednumber);
+		System.out.println("Size of undirected followers: " + undirectednumber);
+
+		// collection.drop();
 	}
 
-
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static void directedanalysis(DBCollection collection, DBCollection regulatedcollection) {
+	@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
+	private static void directedanalysis(DBCollection collection,
+			DBCollection regulatedcollection) {
 		// TODO Auto-generated method stub
 
 		regulatedcollection.drop();
-		
+
 		ArrayList<Long> Users = getUsers(collection);
 
 		ArrayList<ArrayList> followers = getFollowers(collection);
-		
+
 		ArrayList<ArrayList> totalfollowers = new ArrayList<ArrayList>();
 		ArrayList<ArrayList> directedfollowers = new ArrayList<ArrayList>();
 		ArrayList<ArrayList> undirectedfollowers = new ArrayList<ArrayList>();
@@ -605,27 +658,27 @@ public class NetworkAnalysis {
 		ArrayList<Long> total = new ArrayList<Long>();
 		ArrayList<Long> directed = new ArrayList<Long>();
 		ArrayList<Long> undirected = new ArrayList<Long>();
-		int totalnumber = 0,directednumber = 0,undirectednumber = 0, uselessnumber = 0;
-		for(int i=0;i<followers.size();i++){
-			System.out.println("User number: "+i);
+		int totalnumber = 0, directednumber = 0, undirectednumber = 0, uselessnumber = 0;
+		for (int i = 0; i < followers.size(); i++) {
+			System.out.println("User number: " + i);
 			temp = followers.get(i);
-			for(int j=0;j<temp.size();j++){
+			for (int j = 0; j < temp.size(); j++) {
 				long id = temp.get(j);
 				int index = Users.indexOf(id);
-				
-				if(index == -1){
+
+				if (index == -1) {
 					uselessnumber++;
-				}else{
+				} else {
 					total.add(id);
-					if(followers.get(index).contains(Users.get(i))){
+					if (followers.get(index).contains(Users.get(i))) {
 						undirected.add(id);
-					}else{
+					} else {
 						directed.add(id);
 					}
 				}
-				
+
 			}
-			
+
 			totalfollowers.add((ArrayList) total.clone());
 			directedfollowers.add((ArrayList) directed.clone());
 			undirectedfollowers.add((ArrayList) undirected.clone());
@@ -637,19 +690,19 @@ public class NetworkAnalysis {
 			directed.clear();
 			undirected.clear();
 		}
-		
-		System.out.println("totalnumber: "+totalnumber);
-		System.out.println("directednumber: "+directednumber);
-		System.out.println("undirectednumber: "+undirectednumber);
-		System.out.println("uselessnumber: "+uselessnumber);
-		
-		ArrayList<Long> user = new ArrayList<Long> ();
+
+		System.out.println("totalnumber: " + totalnumber);
+		System.out.println("directednumber: " + directednumber);
+		System.out.println("undirectednumber: " + undirectednumber);
+		System.out.println("uselessnumber: " + uselessnumber);
+
+		ArrayList<Long> user = new ArrayList<Long>();
 		ArrayList<Long> totalregularfollowers = new ArrayList<Long>();
 		ArrayList<Long> directedregularfollowers = new ArrayList<Long>();
 		ArrayList<Long> undirectedregularfollowers = new ArrayList<Long>();
-		for(int i=0;i<totalfollowers.size();i++){
-			
-			//System.out.println("User number: "+i);
+		for (int i = 0; i < totalfollowers.size(); i++) {
+
+			// System.out.println("User number: "+i);
 			user.add(Users.get(i));
 			totalregularfollowers.addAll(totalfollowers.get(i));
 			totalregularfollowers.add(-1L);
@@ -657,320 +710,322 @@ public class NetworkAnalysis {
 			directedregularfollowers.add(-1L);
 			undirectedregularfollowers.addAll(undirectedfollowers.get(i));
 			undirectedregularfollowers.add(-1L);
-			
-			
-			if(i%100 == 99 || i == totalfollowers.size()-1){
 
-				System.out.println("Number: "+regulatedcollection.count());
+			if (i % 100 == 99 || i == totalfollowers.size() - 1) {
+
+				System.out.println("Number: " + regulatedcollection.count());
 				BasicDBObject totalobject = new BasicDBObject();
-				totalobject.append("Number", regulatedcollection.count()+1);
+				totalobject.append("Number", regulatedcollection.count() + 1);
 				totalobject.append("User IDs", user);
-				
-				totalobject.append("Total Followers IDs", totalregularfollowers);
-				totalobject.append("Directed Followers IDs", directedregularfollowers);
-				totalobject.append("Undirected Followers IDs", undirectedregularfollowers);
-				
-				
+
+				totalobject
+						.append("Total Followers IDs", totalregularfollowers);
+				totalobject.append("Directed Followers IDs",
+						directedregularfollowers);
+				totalobject.append("Undirected Followers IDs",
+						undirectedregularfollowers);
+
 				regulatedcollection.insert(totalobject);
-				
+
 				user.clear();
 				totalregularfollowers.clear();
 				directedregularfollowers.clear();
 				undirectedregularfollowers.clear();
-				
+
 			}
-			
-			
+
 		}
-		
+
 	}
 
-
-
-	@SuppressWarnings("unchecked")
-	private static void RegulateInformation(DBCollection collection1, DBCollection collection2) {
+	@SuppressWarnings({ "unchecked", "unused" })
+	private static void RegulateInformation(DBCollection collection1,
+			DBCollection collection2) {
 		// TODO Auto-generated method stub
 		collection2.drop();
 		System.out.println(collection2.count());
-		DBCursor cursor = collection1.find(new BasicDBObject("User IDs", new BasicDBObject(QueryOperators.EXISTS, true)));
+		DBCursor cursor = collection1.find(new BasicDBObject("User IDs",
+				new BasicDBObject(QueryOperators.EXISTS, true)));
 
 		ArrayList<Long> Users = new ArrayList<Long>();
 		ArrayList<Long> Followers = new ArrayList<Long>();
-		for(int i=0;cursor.hasNext();i++){
+		for (int i = 0; cursor.hasNext(); i++) {
 			BasicDBObject object = (BasicDBObject) cursor.next();
 			Users.addAll((Collection<? extends Long>) object.get("User IDs"));
-			Followers.addAll((Collection<? extends Long>) object.get("Followers IDs"));
+			Followers.addAll((Collection<? extends Long>) object
+					.get("Followers IDs"));
 		}
-		
-		System.out.println("Size of User: "+Users.size());
-		System.out.println("Total Size of Follower: "+Followers.size());
-		
-		
-		cursor = collection1.find(new BasicDBObject("User IDs", new BasicDBObject(QueryOperators.EXISTS, true)));
-		
+
+		System.out.println("Size of User: " + Users.size());
+		System.out.println("Total Size of Follower: " + Followers.size());
+
+		cursor = collection1.find(new BasicDBObject("User IDs",
+				new BasicDBObject(QueryOperators.EXISTS, true)));
+
 		ArrayList<Long> follower = new ArrayList<Long>();
 		ArrayList<Long> user = new ArrayList<Long>();
 		int tag = 0;
-		for(int i=0;i<Followers.size();i++){
+		for (int i = 0; i < Followers.size(); i++) {
 			long followerid = Followers.get(i);
 			follower.add(followerid);
-			
-			if(followerid == -1){
+
+			if (followerid == -1) {
 				user.add(Users.get(tag));
 				tag++;
-				if(tag%100 == 0 && tag>0){
+				if (tag % 100 == 0 && tag > 0) {
 					BasicDBObject information = new BasicDBObject();
-					information.append("Number", collection2.count()+1);
+					information.append("Number", collection2.count() + 1);
 					information.append("User IDs", user);
 					information.append("Followers IDs", follower);
-					
+
 					collection2.insert(information);
-					System.out.println(collection2.count()+"  situation1  "+tag+"  "+user.size()+"   "+follower.size());
-					
+					System.out.println(collection2.count() + "  situation1  "
+							+ tag + "  " + user.size() + "   "
+							+ follower.size());
+
 					user.clear();
 					follower.clear();
-				}else if(tag == Users.size()){
+				} else if (tag == Users.size()) {
 					BasicDBObject information = new BasicDBObject();
-					information.append("Number", collection2.count()+1);
+					information.append("Number", collection2.count() + 1);
 					information.append("User IDs", user);
 					information.append("Followers IDs", follower);
-					
+
 					collection2.insert(information);
-					System.out.println(collection2.count()+"  situation2  "+tag);
-					
+					System.out.println(collection2.count() + "  situation2  "
+							+ tag);
+
 					user.clear();
 					follower.clear();
 				}
 			}
 		}
-		
-		
-		cursor = collection2.find(new BasicDBObject("User IDs", new BasicDBObject(QueryOperators.EXISTS, true)));
+
+		cursor = collection2.find(new BasicDBObject("User IDs",
+				new BasicDBObject(QueryOperators.EXISTS, true)));
 
 		ArrayList<Long> Users1 = new ArrayList<Long>();
-		for(int i=0;cursor.hasNext();i++){
+		for (int i = 0; cursor.hasNext(); i++) {
 			BasicDBObject object = (BasicDBObject) cursor.next();
 			Users1.addAll((Collection<? extends Long>) object.get("User IDs"));
 		}
-		
+
 		System.out.println(Users1.size());
 	}
 
-	@SuppressWarnings("unchecked")
-	private static void followersanalysis(DBCollection collection, String followerkey) {
+	@SuppressWarnings({ "unchecked", "unused" })
+	private static void followersanalysis(DBCollection collection,
+			String followerkey) {
 		// TODO Auto-generated method stub
-		DBCursor cursor = collection.find(new BasicDBObject("User IDs", new BasicDBObject(QueryOperators.EXISTS, true)));
-		
+		DBCursor cursor = collection.find(new BasicDBObject("User IDs",
+				new BasicDBObject(QueryOperators.EXISTS, true)));
+
 		int usernumber = 0;
 		int userfollower = 0;
 		int userfilterfollower = 0;
-		int followerdistribution [] = new int [10000];
-		for(int i=0;i<followerdistribution.length;i++){
-			followerdistribution [i] = 0;
+		int followerdistribution[] = new int[10000];
+		for (int i = 0; i < followerdistribution.length; i++) {
+			followerdistribution[i] = 0;
 		}
-		
+
 		int totalnumber = 0;
-		
-		for(int i=0;cursor.hasNext();i++){
+
+		for (int i = 0; cursor.hasNext(); i++) {
 			BasicDBObject object = (BasicDBObject) cursor.next();
 			ArrayList<Long> users = (ArrayList<Long>) object.get("User IDs");
-			ArrayList<Long> followers = (ArrayList<Long>) object.get(followerkey);
-			
+			ArrayList<Long> followers = (ArrayList<Long>) object
+					.get(followerkey);
+
 			totalnumber += followers.size();
-			usernumber = usernumber+users.size();
-			
+			usernumber = usernumber + users.size();
+
 			ArrayList<Long> follower = new ArrayList<Long>();
-			
-			for(int j=0; j<followers.size();j++){
+
+			for (int j = 0; j < followers.size(); j++) {
 				long followerid = followers.get(j);
 				follower.add(followers.get(j));
-				
-				if(followerid == -1){
-					if(follower.size()>=2){
+
+				if (followerid == -1) {
+					if (follower.size() >= 2) {
 						userfilterfollower += 1;
-						followerdistribution [follower.size()-2] += 1;
+						followerdistribution[follower.size() - 2] += 1;
 					}
 					userfollower += 1;
 					follower.clear();
 				}
-				
+
 			}
 		}
-		
-		System.out.println("Size of users: "+usernumber);
-		System.out.println("Size of users for followers: "+userfollower);
-		System.out.println("Size of filtered users for followers: "+userfilterfollower);
-		
-		
-		for(int i=0;i<followerdistribution.length;i++){
-			//System.out.println(i+"   "+followerdistribution[i]);
-/*			if(followerdistribution[i]!=0){
-				System.out.println(i);
-			}*/
-			System.out.println(Math.log(followerdistribution[i]+1)/Math.log(10));
-			//System.out.println(Math.log(i+1)/Math.log(10));
+
+		System.out.println("Size of users: " + usernumber);
+		System.out.println("Size of users for followers: " + userfollower);
+		System.out.println("Size of filtered users for followers: "
+				+ userfilterfollower);
+
+		for (int i = 0; i < followerdistribution.length; i++) {
+			// System.out.println(i+"   "+followerdistribution[i]);
+			/*
+			 * if(followerdistribution[i]!=0){ System.out.println(i); }
+			 */
+			System.out.println(Math.log(followerdistribution[i] + 1)
+					/ Math.log(10));
+			// System.out.println(Math.log(i+1)/Math.log(10));
 		}
-		
-		System.out.println("Total number of followers: "+totalnumber);
+
+		System.out.println("Total number of followers: " + totalnumber);
 	}
 
-	
-	
 	@SuppressWarnings("unchecked")
 	private static ArrayList<Long> getUsers(DBCollection collection) {
 		// TODO Auto-generated method stub
-		DBCursor cursor = collection.find(new BasicDBObject("User IDs", new BasicDBObject(QueryOperators.EXISTS, true)));
-		
+		DBCursor cursor = collection.find(new BasicDBObject("User IDs",
+				new BasicDBObject(QueryOperators.EXISTS, true)));
+
 		ArrayList<Long> Users = new ArrayList<Long>();
-		for(int i=0;cursor.hasNext();i++){
+		for (int i = 0; cursor.hasNext(); i++) {
 			BasicDBObject object = (BasicDBObject) cursor.next();
 			Users.addAll((Collection<? extends Long>) object.get("User IDs"));
-			System.out.println(i+"  "+Users.size());
+			System.out.println(i + "  " + Users.size());
 		}
-		
-		System.out.println("Size of User: "+Users.size());
+
+		System.out.println("Size of User: " + Users.size());
 		return Users;
 	}
-	
-	
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static ArrayList<Integer> getUserkeys(
 			DBCollection anonymouscollection) {
 		// TODO Auto-generated method stub
-		DBCursor cursor = anonymouscollection.find(new BasicDBObject("User IDs", new BasicDBObject(QueryOperators.EXISTS, true)));
-		
+		DBCursor cursor = anonymouscollection.find(new BasicDBObject(
+				"User IDs", new BasicDBObject(QueryOperators.EXISTS, true)));
+
 		ArrayList<Integer> Users = new ArrayList<Integer>();
 		ArrayList<Integer> Numbers = new ArrayList<Integer>();
 		ArrayList<ArrayList> user = new ArrayList<ArrayList>();
-		for(int i=0;cursor.hasNext();i++){
+		for (int i = 0; cursor.hasNext(); i++) {
 			BasicDBObject object = (BasicDBObject) cursor.next();
 			ArrayList<Integer> temp = (ArrayList) object.get("User IDs");
 			user.add(temp);
-			Numbers.add(temp.get(0)/100);
-			System.out.println(i+"  "+Users.size());
-			//System.out.println();
+			Numbers.add(temp.get(0) / 100);
+			System.out.println(i + "  " + Users.size());
+			// System.out.println();
 		}
-		
-		int [] numberorder = new int [Numbers.size()];
+
+		int[] numberorder = new int[Numbers.size()];
 		numberorder = getNumberOrder(Numbers);
-		
-		for(int i=0;i<numberorder.length;i++){
+
+		for (int i = 0; i < numberorder.length; i++) {
 			Users.addAll(user.get(numberorder[i]));
 		}
-		
-		System.out.println("Size of User: "+Users.size());
+
+		System.out.println("Size of User: " + Users.size());
 		return Users;
 	}
-	
-	
 
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	private static ArrayList<ArrayList> getFollowers(DBCollection collection) {
 		// TODO Auto-generated method stub
 		return getFollowers(collection, "Followers IDs");
 	}
-	
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static ArrayList<ArrayList> getFollowers(DBCollection collection,
 			String string) {
 		// TODO Auto-generated method stub
-		DBCursor cursor = collection.find(new BasicDBObject("User IDs", new BasicDBObject(QueryOperators.EXISTS, true)));
-		
-		ArrayList<ArrayList> followers = new ArrayList<ArrayList> ();
-		ArrayList<Long> follower = new ArrayList<Long> ();
-		ArrayList<Long> followerids = new ArrayList<Long> ();
-		
-		for(int i=0;cursor.hasNext();i++){
+		DBCursor cursor = collection.find(new BasicDBObject("User IDs",
+				new BasicDBObject(QueryOperators.EXISTS, true)));
+
+		ArrayList<ArrayList> followers = new ArrayList<ArrayList>();
+		ArrayList<Long> follower = new ArrayList<Long>();
+		ArrayList<Long> followerids = new ArrayList<Long>();
+
+		for (int i = 0; cursor.hasNext(); i++) {
 			BasicDBObject object = (BasicDBObject) cursor.next();
 			follower = (ArrayList<Long>) object.get(string);
-			for(int j=0;j<follower.size();j++){
+			for (int j = 0; j < follower.size(); j++) {
 				long followerid = follower.get(j);
-				if(followerid == -1){
+				if (followerid == -1) {
 					followers.add((ArrayList) followerids.clone());
 					followerids.clear();
-				}else{
+				} else {
 					followerids.add(followerid);
 				}
 			}
-			
+
 			follower.clear();
 			System.out.println(i);
 		}
-		
-		System.out.println("Size of User: "+followers.size());
-		
+
+		System.out.println("Size of User: " + followers.size());
+
 		int number = 0;
-		for(ArrayList follow : followers){
+		for (ArrayList follow : followers) {
 			number += follow.size();
 		}
-		System.out.println("Size of Followers: "+number);
+		System.out.println("Size of Followers: " + number);
 		return followers;
 	}
-	
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static ArrayList<ArrayList> getFollowerkeys(DBCollection collection, String string) {
+	private static ArrayList<ArrayList> getFollowerkeys(
+			DBCollection collection, String string) {
 		// TODO Auto-generated method stub
-		DBCursor cursor = collection.find(new BasicDBObject("User IDs", new BasicDBObject(QueryOperators.EXISTS, true)));
-		
-		ArrayList<ArrayList> followers = new ArrayList<ArrayList> ();
-		ArrayList<ArrayList> orderedfollowers = new ArrayList<ArrayList> ();
-		ArrayList<Integer> follower = new ArrayList<Integer> ();
-		ArrayList<Integer> followerids = new ArrayList<Integer> ();
+		DBCursor cursor = collection.find(new BasicDBObject("User IDs",
+				new BasicDBObject(QueryOperators.EXISTS, true)));
+
+		ArrayList<ArrayList> followers = new ArrayList<ArrayList>();
+		ArrayList<ArrayList> orderedfollowers = new ArrayList<ArrayList>();
+		ArrayList<Integer> follower = new ArrayList<Integer>();
+		ArrayList<Integer> followerids = new ArrayList<Integer>();
 		ArrayList<Integer> Numbers = new ArrayList<Integer>();
-		
-		for(int i=0;cursor.hasNext();i++){
+
+		for (int i = 0; cursor.hasNext(); i++) {
 			BasicDBObject object = (BasicDBObject) cursor.next();
 			followers.add((ArrayList<Integer>) object.get(string));
 			ArrayList<Integer> temp = (ArrayList) object.get("User IDs");
-			Numbers.add(temp.get(0)/100);
+			Numbers.add(temp.get(0) / 100);
 		}
-		
-		int [] numberorder = new int [Numbers.size()];
+
+		int[] numberorder = new int[Numbers.size()];
 		numberorder = getNumberOrder(Numbers);
-		
-		for(int i=0;i<numberorder.length;i++){
+
+		for (int i = 0; i < numberorder.length; i++) {
 			follower = followers.get(numberorder[i]);
-			for(int j=0;j<follower.size();j++){
+			for (int j = 0; j < follower.size(); j++) {
 				int followerid = follower.get(j);
-				if(followerid == -1){
+				if (followerid == -1) {
 					orderedfollowers.add((ArrayList) followerids.clone());
 					followerids.clear();
-				}else{
+				} else {
 					followerids.add(followerid);
 				}
 			}
-			
+
 			follower.clear();
 			System.out.println(i);
 		}
-		
-		//followers.clear();
-		
-		System.out.println("Size of User: "+orderedfollowers.size());
-		
+
+		// followers.clear();
+
+		System.out.println("Size of User: " + orderedfollowers.size());
+
 		int number = 0;
-		for(ArrayList follow : orderedfollowers){
+		for (ArrayList follow : orderedfollowers) {
 			number += follow.size();
 		}
-		System.out.println("Size of Followers: "+number);
+		System.out.println("Size of Followers: " + number);
 		return orderedfollowers;
 	}
-	
-	
-	
+
 	private static int[] getNumberOrder(ArrayList<Integer> numbers) {
 		// TODO Auto-generated method stub
-		int [] numberorder = new int [numbers.size()];
-		
-		for(int i = 0; i<numbers.size(); i++){
+		int[] numberorder = new int[numbers.size()];
+
+		for (int i = 0; i < numbers.size(); i++) {
 			numberorder[i] = numbers.indexOf(i);
 		}
-		
+
 		return numberorder;
 	}
-	
+
 }

@@ -26,7 +26,6 @@ public class MongoTest {
 	/**
 	 * @param args
 	 */
-	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		testtheMongo();
@@ -36,6 +35,7 @@ public class MongoTest {
 
 	}
 
+	@SuppressWarnings({ "unused", "unchecked" })
 	private static void testMiningResults() {
 		// TODO Auto-generated method stub
 		try {
@@ -92,6 +92,7 @@ public class MongoTest {
 	/**
 	 * test the ability for Mongo DB
 	 */
+	@SuppressWarnings("unchecked")
 	private static void testtheMongo() {
 		// TODO Auto-generated method stub
 		try {
@@ -100,7 +101,7 @@ public class MongoTest {
 			DBCollection dbcollection = db.getCollection("mongotest");
 			dbcollection.drop();
 			BasicDBObject [] object = new BasicDBObject [10000];
-			ArrayList<Long> [] array = new ArrayList [10000];
+			ArrayList<Long>[] array = new ArrayList[10000];
 
 			for(int i=0;i<array.length;i++){
 				array[i] =  new ArrayList<Long>();

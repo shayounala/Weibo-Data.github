@@ -1,14 +1,11 @@
 package dataprocessing;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.Bytes;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 import com.mongodb.QueryOperators;
 
 import datamining.Mining;
@@ -24,7 +21,7 @@ public class ExportDataToMongo {
 	public ArrayList<Long> ExportUniqueUserIDs(Processing processing,
 			ArrayList<Long> UniqueUserIDsList, ArrayList<Long> Followers) {
 
-		if(UniqueUserIDsList.size()>=1000000){
+		if (UniqueUserIDsList.size() >= 1000000) {
 			return UniqueUserIDsList;
 		}
 		DB db = processing.getDB();
@@ -32,27 +29,30 @@ public class ExportDataToMongo {
 		DBCollection UniqueUserIDsCollection = db.getCollection(CollectionName);
 		System.out.println(new Date(System.currentTimeMillis()));
 		ArrayList<Long> NewIDs = new ArrayList<Long>();
-		for(int i=0;i<Followers.size();i++){
-			boolean exist = false;//store if the followers id exists in uniqueuseridslist
-			loop:for(int j=0;j<UniqueUserIDsList.size();j++){
-				if(UniqueUserIDsList.get(j).longValue()==Followers.get(i).longValue()){
+		for (int i = 0; i < Followers.size(); i++) {
+			boolean exist = false;// store if the followers id exists in
+									// uniqueuseridslist
+			loop: for (int j = 0; j < UniqueUserIDsList.size(); j++) {
+				if (UniqueUserIDsList.get(j).longValue() == Followers.get(i)
+						.longValue()) {
 					exist = true;
 					break loop;
 				}
 			}
-			//if follower id doesn't exist, add it to uniqueuseridslist
-			if(!exist){
+			// if follower id doesn't exist, add it to uniqueuseridslist
+			if (!exist) {
 				UniqueUserIDsList.add(Followers.get(i));
 				NewIDs.add(Followers.get(i));
 			}
 		}
 		System.out.println(new Date(System.currentTimeMillis()));
-		UniqueUserIDsCollection.insert(new BasicDBObject("User ID",NewIDs));
+		UniqueUserIDsCollection.insert(new BasicDBObject("User ID", NewIDs));
 		System.out.println(new Date());
-		if(UniqueUserIDsCollection.getCount()>=1000){
-			AdjusttheData(UniqueUserIDsCollection,UniqueUserIDsList);
+		if (UniqueUserIDsCollection.getCount() >= 1000) {
+			AdjusttheData(UniqueUserIDsCollection, UniqueUserIDsList);
 		}
-		System.out.println("Export: Number of Unique User IDs: "+UniqueUserIDsList.size());
+		System.out.println("Export: Number of Unique User IDs: "
+				+ UniqueUserIDsList.size());
 
 		return UniqueUserIDsList;
 
@@ -65,20 +65,21 @@ public class ExportDataToMongo {
 	 *            than 1000, adjust the number of IDs in every BasicDBObject
 	 *            with Mining.SingleMaxforUniqueIDs
 	 */
-	private void AdjusttheData(DBCollection uniqueUserIDsCollection, ArrayList<Long> uniqueUserIDsList) {
+	private void AdjusttheData(DBCollection uniqueUserIDsCollection,
+			ArrayList<Long> uniqueUserIDsList) {
 		// TODO Auto-generated method stub
 		uniqueUserIDsCollection.drop();
 		ArrayList<Long> grandIDs = new ArrayList<Long>();
-		for(int i=0;i<uniqueUserIDsList.size();i++){
+		for (int i = 0; i < uniqueUserIDsList.size(); i++) {
 			grandIDs.add(uniqueUserIDsList.get(i));
-			if(i%Mining.SingleMaxforUniqueIDs == Mining.SingleMaxforUniqueIDs-1){
-				uniqueUserIDsCollection.insert(new BasicDBObject("User ID",grandIDs));
+			if (i % Mining.SingleMaxforUniqueIDs == Mining.SingleMaxforUniqueIDs - 1) {
+				uniqueUserIDsCollection.insert(new BasicDBObject("User ID",
+						grandIDs));
 				grandIDs.clear();
 			}
 		}
-		
-	}
 
+	}
 
 	/**
 	 * @param processing
@@ -90,7 +91,8 @@ public class ExportDataToMongo {
 
 		DB db = processing.getDB();
 		String CollectionName = processing.getNextIDs();
-		DBCollection UserInformationCollection = db.getCollection(CollectionName);
+		DBCollection UserInformationCollection = db
+				.getCollection(CollectionName);
 
 		ArrayList<Integer> NextUniqueIDsList = (ArrayList<Integer>) UserInformationCollection
 				.distinct(
@@ -107,8 +109,9 @@ public class ExportDataToMongo {
 							QueryOperators.EXISTS, true)), new BasicDBObject(
 					"Next ID for Mining followers ID", nextuniqueid));
 		}
-		
-		System.out.println("Export: Next number of follower User IDs: "+nextuniqueid);
+
+		System.out.println("Export: Next number of follower User IDs: "
+				+ nextuniqueid);
 
 	}
 
@@ -122,7 +125,8 @@ public class ExportDataToMongo {
 
 		DB db = processing.getDB();
 		String CollectionName = processing.getNextIDs();
-		DBCollection UserInformationCollection = db.getCollection(CollectionName);
+		DBCollection UserInformationCollection = db
+				.getCollection(CollectionName);
 
 		ArrayList<Integer> NextUniqueIDsList = (ArrayList<Integer>) UserInformationCollection
 				.distinct("Next ID for Mining friends ID", (new BasicDBObject(
@@ -138,8 +142,9 @@ public class ExportDataToMongo {
 							QueryOperators.EXISTS, true)), new BasicDBObject(
 					"Next ID for Mining friends ID", nextuniqueid));
 		}
-		
-		System.out.println("Export: Next number of friends User IDs:"+ nextuniqueid);
+
+		System.out.println("Export: Next number of friends User IDs:"
+				+ nextuniqueid);
 
 	}
 
@@ -152,7 +157,8 @@ public class ExportDataToMongo {
 
 		DB db = processing.getDB();
 		String CollectionName = processing.getNextIDs();
-		DBCollection UserInformationCollection = db.getCollection(CollectionName);
+		DBCollection UserInformationCollection = db
+				.getCollection(CollectionName);
 
 		ArrayList<Integer> NextUniqueIDsList = (ArrayList<Integer>) UserInformationCollection
 				.distinct("Next ID for Mining Tweets", (new BasicDBObject(
@@ -168,8 +174,9 @@ public class ExportDataToMongo {
 							QueryOperators.EXISTS, true)), new BasicDBObject(
 					"Next ID for Mining Tweets", nextuniqueid));
 		}
-		
-		System.out.println("Export: Next number of tweets User IDs: "+nextuniqueid);
+
+		System.out.println("Export: Next number of tweets User IDs: "
+				+ nextuniqueid);
 
 	}
 
@@ -182,7 +189,8 @@ public class ExportDataToMongo {
 
 		DB db = processing.getDB();
 		String CollectionName = processing.getNextIDs();
-		DBCollection UniqueTweetIDsCollection = db.getCollection(CollectionName);
+		DBCollection UniqueTweetIDsCollection = db
+				.getCollection(CollectionName);
 
 		ArrayList<Integer> NextUniqueIDsList = (ArrayList<Integer>) UniqueTweetIDsCollection
 				.distinct(
@@ -199,8 +207,9 @@ public class ExportDataToMongo {
 							QueryOperators.EXISTS, true)), new BasicDBObject(
 					"Next Tweet ID for Mining Reposts", nextuniqueid));
 		}
-		
-		System.out.println("Export: Next number of reposts Tweet IDs:"+nextuniqueid);
+
+		System.out.println("Export: Next number of reposts Tweet IDs:"
+				+ nextuniqueid);
 
 	}
 
@@ -224,15 +233,17 @@ public class ExportDataToMongo {
 			userinformationobject = new BasicDBObject("User ID", userid);
 			UserInformationCollection.insert(userinformationobject);
 		}
-		if (userinformationobject.get("Followers ID")!=null) {
+		if (userinformationobject.get("Followers ID") != null) {
 			return;
 		}
 
 		userinformationobject.put("Followers ID", followers);
 		UserInformationCollection.update(query, userinformationobject);
-		
-		
-		System.out.println("Export: Number of followers User IDs: "+UserInformationCollection.find(new BasicDBObject("Followers ID", new BasicDBObject(QueryOperators.EXISTS,true))).count());
+
+		System.out.println("Export: Number of followers User IDs: "
+				+ UserInformationCollection.find(
+						new BasicDBObject("Followers ID", new BasicDBObject(
+								QueryOperators.EXISTS, true))).count());
 	}
 
 	/**
@@ -257,20 +268,25 @@ public class ExportDataToMongo {
 
 		userinformationobject.put("Friends ID", friends);
 		UserInformationCollection.update(query, userinformationobject);
-		
-		System.out.println("Export: Number of friends User IDs: "+UserInformationCollection.find(new BasicDBObject("Friends ID", new BasicDBObject(QueryOperators.EXISTS,true))).count());
+
+		System.out.println("Export: Number of friends User IDs: "
+				+ UserInformationCollection.find(
+						new BasicDBObject("Friends ID", new BasicDBObject(
+								QueryOperators.EXISTS, true))).count());
 	}
 
 	/**
 	 * @param processing
 	 * @param userid
 	 * @param TweetsID
-	 * @param repostsTime 
-	 * @param repostsUserID 
-	 * @param repostsID 
+	 * @param repostsTime
+	 * @param repostsUserID
+	 * @param repostsID
 	 */
 	public void ExportUserTweetsID(Processing processing, long userid,
-			ArrayList<Long> TweetsID, ArrayList<Long> TweetsTime, ArrayList<Long> repostsID, ArrayList<Long> repostsUserID, ArrayList<Long> repostsTime) {
+			ArrayList<Long> TweetsID, ArrayList<Long> TweetsTime,
+			ArrayList<Long> repostsID, ArrayList<Long> repostsUserID,
+			ArrayList<Long> repostsTime) {
 
 		DB db = processing.getDB();
 		String CollectionName = processing.getTweetInformation();
@@ -281,11 +297,15 @@ public class ExportDataToMongo {
 		BasicDBObject userinformationobject = (BasicDBObject) UserInformationCollection
 				.findOne(query);
 		if (userinformationobject != null) {
-			System.out.println("Export: Number of tweets User IDs: "+UserInformationCollection.find(new BasicDBObject("Tweets ID", new BasicDBObject(QueryOperators.EXISTS,true))).count());
-			System.out.println("Read Tweet information from an user which is read before");
+			System.out.println("Export: Number of tweets User IDs: "
+					+ UserInformationCollection.find(
+							new BasicDBObject("Tweets ID", new BasicDBObject(
+									QueryOperators.EXISTS, true))).count());
+			System.out
+					.println("Read Tweet information from an user which is read before");
 			System.exit(0);
 		}
-		
+
 		userinformationobject = new BasicDBObject();
 
 		userinformationobject.append("User ID", userid);
@@ -295,11 +315,13 @@ public class ExportDataToMongo {
 		userinformationobject.append("Reposts User ID", repostsUserID);
 		userinformationobject.append("Reposts Time", repostsTime);
 		UserInformationCollection.insert(userinformationobject);
-		
-		System.out.println("Export: Number of tweets User IDs: "+UserInformationCollection.find(new BasicDBObject("Tweets ID", new BasicDBObject(QueryOperators.EXISTS,true))).count());
+
+		System.out.println("Export: Number of tweets User IDs: "
+				+ UserInformationCollection.find(
+						new BasicDBObject("Tweets ID", new BasicDBObject(
+								QueryOperators.EXISTS, true))).count());
 	}
-	
-	
+
 	/**
 	 * @param processing
 	 * @param TweetsID
@@ -314,15 +336,17 @@ public class ExportDataToMongo {
 
 		for (int i = 0; i < TweetsID.size(); i++) {
 
-			UniqueTweetIDsCollection.insert(new BasicDBObject("Tweet Number", i)
-			.append("Tweet ID", TweetsID.get(i).intValue()));
+			UniqueTweetIDsCollection
+					.insert(new BasicDBObject("Tweet Number", i).append(
+							"Tweet ID", TweetsID.get(i).intValue()));
 
 		}
-		
-		System.out.println("Export: Number of tweets IDs: "+UniqueTweetIDsCollection.find(new BasicDBObject("Tweet ID", new BasicDBObject(QueryOperators.EXISTS,true))).count());
+
+		System.out.println("Export: Number of tweets IDs: "
+				+ UniqueTweetIDsCollection.find(
+						new BasicDBObject("Tweet ID", new BasicDBObject(
+								QueryOperators.EXISTS, true))).count());
 	}
-	
-	
 
 	/**
 	 * @param processing
@@ -331,15 +355,14 @@ public class ExportDataToMongo {
 	 * @param weiboToken
 	 * @param weiboTokenSecret
 	 */
-	public void ExportAccountInformation(Processing processing, String weiboAccount,
-			String weiboPassword, String weiboToken,
+	public void ExportAccountInformation(Processing processing,
+			String weiboAccount, String weiboPassword, String weiboToken,
 			String weiboTokenSecret) {
 		// TODO Auto-generated method stub
 		DB db = processing.getDB();
 		String CollectionName = processing.getAccountInformation();
 		DBCollection AccountInformationCollection = db
 				.getCollection(CollectionName);
-		
 
 		BasicDBObject accountinfo = new BasicDBObject();
 		accountinfo.append("weiboAccount", weiboAccount);
@@ -351,16 +374,16 @@ public class ExportDataToMongo {
 		accountinfo.append("weiboTokenSecret", weiboTokenSecret);
 		System.out.println(weiboTokenSecret);
 		AccountInformationCollection.insert(accountinfo);
-		
+
 	}
-	
+
 	/**
 	 * @param processing
 	 * @param tweetid
 	 * @param tweets
 	 */
-	public void ExportUserTweetInformationID(Processing processing, long tweetid,
-			ArrayList<Long> repostsid,ArrayList<Long> repoststime ) {
+	public void ExportUserTweetInformationID(Processing processing,
+			long tweetid, ArrayList<Long> repostsid, ArrayList<Long> repoststime) {
 
 		DB db = processing.getDB();
 		String CollectionName = processing.getTweetInformation();
@@ -370,11 +393,11 @@ public class ExportDataToMongo {
 		BasicDBObject query = new BasicDBObject("Tweet ID", tweetid);
 		BasicDBObject tweetinformationobject = (BasicDBObject) UserInformationCollection
 				.findOne(query);
-		
+
 		if (tweetinformationobject == null) {
 			tweetinformationobject = new BasicDBObject("Tweet ID", tweetid);
 		}
-		
+
 		if (tweetinformationobject.getBoolean("Reposts ID")) {
 			return;
 		}
@@ -383,7 +406,7 @@ public class ExportDataToMongo {
 		tweetinformationobject.append("Reposts Time", repoststime);
 		UserInformationCollection.update(query, tweetinformationobject);
 	}
-	
+
 	/**
 	 * @param processing
 	 * @param userid
