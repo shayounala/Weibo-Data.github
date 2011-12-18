@@ -65,19 +65,78 @@ public class NetworkAnalysis {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	private static void analysistweetinformation(
 			DBCollection tweetinformationcollection) {
 		// TODO Auto-generated method stub
 		DBCursor cursor = tweetinformationcollection.find();
 		cursor.setOptions(Bytes.QUERYOPTION_NOTIMEOUT);
-		System.out.println("Size of TweetInformation: "+cursor.count());
+		//System.out.println("Size of TweetInformation: "+cursor.count());
 		
+		long timeinterval = 0;
+		long millisecondsforday = 86400000;
+		int [] tweetsnumber = new int[cursor.count()];
+		int [] repostsnumber = new int[cursor.count()];
+		double [] tweetsfre = new double[cursor.count()];
+		double [] repostsfre = new double[cursor.count()];
+		int [] tweetsorder = new int[201];
+		int [] repostsorder = new int[201];
+		int [] tweetsfreorder = new int[201];
+		int [] repostsfreorder = new int[201];
+		
+		//System.out.println("Start reading a user's tweet at: "+System.currentTimeMillis());
 		for(int i=0;cursor.hasNext();i++){
+			
 			BasicDBObject object = (BasicDBObject) cursor.next();
-			object.get("Tweets ID");
-			object.get("Reposts ID");
+			
+			ArrayList<Long> tweetsid = (ArrayList<Long>) object.get("Tweets ID");
+			ArrayList<Long> tweetstime = (ArrayList<Long>) object.get("Tweets Time");
+			if(tweetstime.size() != 0){
+				timeinterval = tweetstime.get(0)-tweetstime.get(tweetstime.size()-1);
+				if(timeinterval == 0){
+					timeinterval = System.currentTimeMillis()-tweetstime.get(0);
+				}
+				tweetsfre[i] = ((double)tweetsid.size()*millisecondsforday)/timeinterval;
+			}else{
+				tweetsfre[i] = 0;
+			}
+			tweetsnumber[i] = tweetsid.size();
+			tweetsorder[tweetsid.size()] +=1;
+			int temp = (int) (tweetsfre[i]*20);
+			if(temp>200){
+				temp = 200;
+			}
+			tweetsfreorder[temp] +=1;
+			
+			ArrayList<Long> repostsid = (ArrayList<Long>) object.get("Reposts ID");
+			ArrayList<Long> repoststime = (ArrayList<Long>) object.get("Reposts Time");
+			if(repoststime.size() != 0){
+				timeinterval = repoststime.get(0)-repoststime.get(repoststime.size()-1);
+				if(timeinterval == 0){
+					timeinterval = System.currentTimeMillis()-repoststime.get(0);
+				}
+				repostsfre[i] = ((double)repostsid.size()*millisecondsforday)/timeinterval;
+			}else{
+				repostsfre[i] = 0;
+			}
+			repostsnumber[i] = repostsid.size();
+			repostsorder[repostsid.size()] +=1;
+			temp = (int) (repostsfre[i]*20);
+			if(temp>200){
+				temp = 200;
+			}
+			repostsfreorder[temp] +=1;
+			
+			
+			//System.out.println(i+"	"+repostsfre[i]+"	"+tweetsfre[i]);
+			
+			//System.out.println("User: "+i+" Size of Tweets ID: "+tweetsid.size()+" Size of Reposts ID: "+repostsid.size());
 		}
+		//System.out.println("Finish reading a user's tweet at: "+System.currentTimeMillis());
 		
+		for(int i=0;i<tweetsorder.length;i++){
+			System.out.println(i+"	"+tweetsfreorder[i]+"	"+repostsfreorder[i]);
+		}
 	}
 
 
